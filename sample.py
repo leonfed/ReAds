@@ -1,4 +1,2 @@
-import sys
-import random
-
-print(random.uniform(0.5, 1.5))
+f = open('plyGenerated.csv' , 'a')
+f.write("a,b,c,d,t\n")

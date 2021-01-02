@@ -3,26 +3,48 @@ import uuid
 from plyfile import PlyData
 import numpy as np
 from random import randint
+from random import shuffle
 import random
 import sys
 from PIL import Image
 
 from room import get_room
+from utils import rgb2hex
 
-room_name, wall_indexes = get_room(3)
+images_count = 32
+iterations_count = 2
+
+room_name, wall_indexes = get_room(2)
 min_plot_width = 0.5
 max_plot_width = 1.2
 
 session_id = uuid.uuid4()
 
-path = '/home/fedleonid/Study/diploma/replica_v1/%s/habitat/mesh_semantic.ply' % room_name
+path = 'mesh_semantic.ply'
 plydata = PlyData.read(path)
 face = plydata['face']
 vertex = plydata['vertex']
 
 vertex_len = len(vertex.data)
 
-for iteration in range(3):
+images_array = [i for i in range(1, images_count + 1)]
+while len(images_array) < iterations_count:
+    images_array = images_array.copy() + images_array.copy()
+shuffle(images_array)
+
+all_colors = set()
+for i in range(len(vertex.data)):
+    color = (vertex.data[i][6], vertex.data[i][7], vertex.data[i][8])
+    all_colors.add(color)
+special_color = (-1, -1, -1)
+while special_color[0] == -1:
+    special_color = (randint(0, 255), randint(0, 255), randint(0, 255))
+    if special_color in all_colors:
+        special_color = (-1, -1, -1)
+
+file_ply_generated_csv = open('plyGenerated.csv', 'a')
+
+for iteration in range(iterations_count):
     print("Start iteration %s" % iteration)
     face_data = np.array(face.data.copy())
     vertex_data = np.array(vertex.data.copy())
@@ -31,7 +53,7 @@ for iteration in range(3):
     vertex_data_0_copy = vertex_data[0].copy()
     face_data_0_copy = face_data[0].copy()
 
-    image_number = randint(1, 10)
+    image_number = images_array[iteration]
     # image_number = 6
     path = "images/%s.jpg" % image_number
     print("Path to image: %s" % path)
@@ -161,9 +183,12 @@ for iteration in range(3):
     vertex.data = vertex_data
     face.data = face_data
     plydata.elements = [vertex, face]
-    path = 'generated/%s__%s__%s__%s.ply' % (room_name, image_number, iteration, session_id)
+    ply_uuid = uuid.uuid4()
+    path = 'generated/%s.ply' % ply_uuid
     print("Path to generated ply: %s" % path)
     plydata.write(path)
+    file_ply_generated_csv.write("%s,%s,%s,%s,%s,%s\n" %
+                                 (ply_uuid, "-", rgb2hex(special_color), room_name, wall_index, image_number))
 
     vertex.data = vertex_data_copy
     face.data = face_data_copy

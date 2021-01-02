@@ -4,3 +4,6 @@ images/
 mesh_semantic.ply
 screenshots/
 venv/
+generated/
+raw_screenshots/
+saves/
