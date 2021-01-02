@@ -3,6 +3,7 @@ import numpy as np
 import sys
 from PIL import Image
 from io import BytesIO
+import pathlib
 
 from utils import rgb2hex, hex2rgb
 
@@ -16,6 +17,11 @@ for i in range(len(ply_data)):
     current_data = ply_data[i]
 
     [screenshot, special_screenshot, special_color, room, wall_index, image] = current_data
+
+    path = pathlib.Path("screenshots/%s.png" % screenshot)
+    if path.is_file():
+        print("Path %s already exists\n" % path)
+        continue
 
     special_color_rbg = hex2rgb(special_color)
 
@@ -63,7 +69,9 @@ for i in range(len(ply_data)):
 
     print("Vertices: (%s, %s), (%s, %s), (%s, %s), (%s, %s)" % (x1, y1, x2, y2, x3, y3, x4, y4))
 
-    screenshot_normal_png.save("screenshots/%s.png" % screenshot)
+    path = "screenshots/%s.png" % screenshot
+    screenshot_normal_png.save(path)
+    print("Save normal screenshot with %s" % path)
 
 
     def paint_edge(ax, ay, bx, by):
@@ -86,10 +94,14 @@ for i in range(len(ply_data)):
     paint_edge(x3, y3, x4, y4)
     paint_edge(x4, y4, x1, y1)
 
-    screenshot_normal_png.save("boxes/%s.png" % screenshot)
+    path = "boxes/%s.png" % screenshot
+    screenshot_normal_png.save(path)
+    print("Save boxes screenshot with %s" % path)
 
     file_screenshots_csv.write("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" %
                                (screenshot, room, wall_index, image,
                                 x1, y1, x2, y2, x3, y3, x4, y4))
+
+    print()
 
 sys.exit()

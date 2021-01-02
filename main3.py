@@ -11,10 +11,11 @@ from PIL import Image
 from room import get_room
 from utils import rgb2hex
 
-images_count = 32
-iterations_count = 4
+images_count = 50
+iterations_count = 20
+distance_neighbors = 0.1
 
-room_name, wall_indexes = get_room(2)
+room_name, wall_indexes = get_room(0)
 min_plot_width = 0.5
 max_plot_width = 1.2
 
@@ -178,6 +179,23 @@ for iteration in range(iterations_count):
 
     vertex_data[0] = vertex_data_0_copy
     face_data[0] = face_data_0_copy
+
+    isOk = True
+    for i in range(5):
+        idx = randint(0, len(appended_vertices) - 1)
+        thisIndexIsOk = False
+        for p in points:
+            dx = abs(p[1] - appended_vertices[idx][0])
+            dy = abs(p[2] - appended_vertices[idx][1])
+            if dx < distance_neighbors and dy < distance_neighbors:
+                thisIndexIsOk = True
+                break
+        if not thisIndexIsOk:
+            isOk = False
+            break
+    if not isOk:
+        print("Image is not at wall")
+        continue
 
     appended_vertices_normal = np.array(appended_vertices)
     appended_vertices_special = appended_vertices_normal.copy()

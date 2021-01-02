@@ -9,7 +9,7 @@ import sys
 
 from room import get_room
 
-room_name, wall_indexes = get_room(2)
+room_name, wall_indexes = get_room(0)
 
 path = '/home/fedleonid/Study/diploma/replica_v1/%s/habitat/mesh_semantic.ply' % room_name
 plydata = PlyData.read(path)
@@ -52,14 +52,14 @@ else:
 angle = np.arcsin(sin_angle)
 print("Angle: %s" % angle)
 
-for i in range(len(vertex.data)):
-    x = vertex.data[i][0]
-    y = vertex.data[i][1]
-    new_x = x * np.cos(angle) - y * np.sin(angle)
-    new_y = x * np.sin(angle) + y * np.cos(angle)
-    vertex.data[i] = (new_x, new_y, vertex.data[i][2],
-                      vertex.data[i][3], vertex.data[i][4], vertex.data[i][5],
-                      vertex.data[i][6], vertex.data[i][7], vertex.data[i][8])
+# for i in range(len(vertex.data)):
+#     x = vertex.data[i][0]
+#     y = vertex.data[i][1]
+#     new_x = x * np.cos(angle) - y * np.sin(angle)
+#     new_y = x * np.sin(angle) + y * np.cos(angle)
+#     vertex.data[i] = (new_x, new_y, vertex.data[i][2],
+#                       vertex.data[i][3], vertex.data[i][4], vertex.data[i][5],
+#                       vertex.data[i][6], vertex.data[i][7], vertex.data[i][8])
 
 path = 'mesh_semantic.ply'
 plydata.write(path)
