@@ -15,7 +15,7 @@ file_screenshots_csv = open('rawScreenshots.csv', 'a')
 
 ply_data = pandas.read_csv('plyGenerated.csv').values
 
-current_data = ply_data[1]
+current_data = ply_data[0]
 
 [main_ply, special_ply, special_color, room, wall_index, image] = current_data
 

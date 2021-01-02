@@ -12,7 +12,7 @@ from room import get_room
 from utils import rgb2hex
 
 images_count = 32
-iterations_count = 2
+iterations_count = 4
 
 room_name, wall_indexes = get_room(2)
 min_plot_width = 0.5
