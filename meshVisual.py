@@ -4,11 +4,15 @@ import numpy as np
 import pyvista as pv
 import sys
 
-cpos = [(0.0, 0.0, 0.0),
-        (1.0, 1.0, 1.0),
+cpos = [(9.284708146525697, 10.999016587210969, 10.158290748072938),
+        (-0.7161442637443542, 0.998164176940918, 0.15743833780288696),
         (0.0, 0.0, 1.0)]
 
-mesh = pv.read("mesh_semantic.ply")
+# mesh = pv.read("mesh_semantic.ply")
+mesh = pv.read("generated/113ffa93-4b92-4dd5-9333-8a6ce6f33a9f.ply")
+
 [cpos2, _] = mesh.plot(cpos=cpos, screenshot=True, rgb=True)
+
+print(cpos2)
 
 sys.exit()

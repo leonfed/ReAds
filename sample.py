@@ -1,2 +1,3 @@
-f = open('plyGenerated.csv' , 'a')
-f.write("a,b,c,d,t\n")
+import numpy as np
+
+print(np.sign(-112))

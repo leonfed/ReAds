@@ -32,16 +32,6 @@ while len(images_array) < iterations_count:
     images_array = images_array.copy() + images_array.copy()
 shuffle(images_array)
 
-all_colors = set()
-for i in range(len(vertex.data)):
-    color = (vertex.data[i][6], vertex.data[i][7], vertex.data[i][8])
-    all_colors.add(color)
-special_color = (-1, -1, -1)
-while special_color[0] == -1:
-    special_color = (randint(0, 255), randint(0, 255), randint(0, 255))
-    if special_color in all_colors:
-        special_color = (-1, -1, -1)
-
 file_ply_generated_csv = open('plyGenerated.csv', 'a')
 
 for iteration in range(iterations_count):
@@ -62,6 +52,17 @@ for iteration in range(iterations_count):
     image_width = image.size[0]
     image_height = image.size[1]
     image_pix = image.load()
+
+    all_colors = set()
+    for image_x in range(image_width):
+        for image_y in range(image_height):
+            color = image_pix[image_x, image_y]
+            all_colors.add(color)
+    special_color = (-1, -1, -1)
+    while special_color[0] == -1:
+        special_color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        if special_color in all_colors:
+            special_color = (-1, -1, -1)
 
     wall_index = wall_indexes[randint(0, len(wall_indexes) - 1)]
     # wall_index = 76
@@ -175,20 +176,39 @@ for iteration in range(iterations_count):
         x += step_x
         y += step_y
 
-    vertex_data = np.append(vertex_data, appended_vertices)
-    face_data = np.append(face_data, appended_faces)
-
     vertex_data[0] = vertex_data_0_copy
     face_data[0] = face_data_0_copy
-    vertex.data = vertex_data
+
+    appended_vertices_normal = np.array(appended_vertices)
+    appended_vertices_special = appended_vertices_normal.copy()
+    for i in range(len(appended_vertices_special)):
+        v = appended_vertices_special[i]
+        appended_vertices_special[i] = (v[0], v[1], v[2],
+                                        v[3], v[4], v[5],
+                                        special_color[0], special_color[1], special_color[2])
+
+    face_data = np.append(face_data, appended_faces)
     face.data = face_data
+    vertex_data_normal = np.append(vertex_data, appended_vertices_normal)
+    vertex_data_special = np.append(vertex_data, appended_vertices_special)
+
+    vertex.data = vertex_data_normal
     plydata.elements = [vertex, face]
-    ply_uuid = uuid.uuid4()
-    path = 'generated/%s.ply' % ply_uuid
-    print("Path to generated ply: %s" % path)
+    ply_normal_uuid = uuid.uuid4()
+    path = 'generated/%s.ply' % ply_normal_uuid
+    print("Path to generated normal ply: %s" % path)
     plydata.write(path)
+
+    vertex.data = vertex_data_special
+    plydata.elements = [vertex, face]
+    ply_special_uuid = uuid.uuid4()
+    path = 'generated/%s.ply' % ply_special_uuid
+    print("Path to special normal ply: %s" % path)
+    plydata.write(path)
+
     file_ply_generated_csv.write("%s,%s,%s,%s,%s,%s\n" %
-                                 (ply_uuid, "-", rgb2hex(special_color), room_name, wall_index, image_number))
+                                 (ply_normal_uuid, ply_special_uuid,
+                                  rgb2hex(special_color), room_name, wall_index, image_number))
 
     vertex.data = vertex_data_copy
     face.data = face_data_copy
