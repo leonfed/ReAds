@@ -9,7 +9,7 @@ import sys
 
 from room import get_room
 
-room_name, wall_indexes = get_room(0)
+room_name, wall_indexes = get_room(3)
 
 path = '/home/fedleonid/Study/diploma/replica_v1/%s/habitat/mesh_semantic.ply' % room_name
 plydata = PlyData.read(path)
@@ -17,7 +17,6 @@ face = plydata['face']
 vertex = plydata['vertex']
 
 wall_index = wall_indexes[randint(0, len(wall_indexes) - 1)]
-# wall_index = 76
 print("Wall index: %s" % wall_index)
 
 vertex_indexes = set()

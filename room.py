@@ -1,8 +1,8 @@
 names = [
-    "apartment_2",
-    "office_1",
+    "apartment_2", # not enough, but it's hard to create these
+    "office_1", # skip it because colors
     "office_2", # ready
-    "apartment_1",
+    "apartment_1", # ready
     "frl_apartment_0",
     "frl_apartment_1",
     "office_0"

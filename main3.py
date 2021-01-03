@@ -11,11 +11,11 @@ from PIL import Image
 from room import get_room
 from utils import rgb2hex
 
-images_count = 50
-iterations_count = 20
+images_count = 98
+iterations_count = 10
 distance_neighbors = 0.1
 
-room_name, wall_indexes = get_room(0)
+room_name, wall_indexes = get_room(3)
 min_plot_width = 0.5
 max_plot_width = 1.2
 
@@ -101,10 +101,10 @@ for iteration in range(iterations_count):
     fixed_coordinate_value = 0.0
     if len_x / sum_len < percent:
         fixed_coordinate_idx = 0
-        fixed_coordinate_value = min_x - eps if abs(min_x) < abs(max_x) else max_x + eps
+        fixed_coordinate_value = min_x - eps if randint(0, 1) == 0 else max_x + eps
     elif len_y / sum_len < percent:
         fixed_coordinate_idx = 1
-        fixed_coordinate_value = min_y - eps if abs(min_y) < abs(max_y) else max_y + eps
+        fixed_coordinate_value = min_y - eps if randint(0, 1) == 0 else max_y + eps
     else:
         print("Has not chosen coordinate")
         continue
