@@ -9,7 +9,9 @@ cpos = [(9.284708146525697, 10.999016587210969, 10.158290748072938),
         (0.0, 0.0, 1.0)]
 
 # mesh = pv.read("mesh_semantic.ply")
-mesh = pv.read("generated/5ec67497-1f5f-4743-80cc-c158bda15df8.ply")
+mesh = pv.read("/home/fedleonid/Study/diploma/replica_v1/room_2/habitat/mesh_semantic.ply")
+# mesh = pv.read("/home/fedleonid/Study/diploma/Toronto_3D/L002.ply")
+# mesh = pv.read("generated/56eba8d0-c478-45e8-b59a-59bc14c20f8c.ply")
 
 [cpos2, _] = mesh.plot(cpos=cpos, screenshot=True, rgb=True)
 

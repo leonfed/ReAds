@@ -1,3 +1,3 @@
 import numpy as np
 
-print(np.sign(-112))
+print("12.jpg".split('.')[0])

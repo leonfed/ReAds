@@ -7,15 +7,15 @@ import sys
 
 session_id = uuid.uuid4()
 
-cpos_0 = [(18.00292023722519, 18.22297432724823, 14.903588560265199),
-          (2.7711546421051025, 2.9912087321281433, -0.3281770348548889),
+cpos_0 = [(19.20555104420307, 13.761262075163152, 16.523463503576544),
+          (2.5814136266708374, -2.8628753423690796, -0.10067391395568848),
           (0.0, 0.0, 1.0)]
 
 file_screenshots_csv = open('rawScreenshots.csv', 'a')
 
 ply_data = pandas.read_csv('plyGenerated.csv').values
 
-current_data = ply_data[63]
+current_data = ply_data[0]
 
 [main_ply, special_ply, special_color, room, wall_index, image] = current_data
 

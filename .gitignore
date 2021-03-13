@@ -7,3 +7,6 @@ venv/
 generated/
 raw_screenshots/
 boxes/
+banner/
+contour/results/
+contour/examples/

@@ -15,7 +15,7 @@ images_count = 98
 iterations_count = 10
 distance_neighbors = 0.1
 
-room_name, wall_indexes = get_room(3)
+room_name, wall_indexes = get_room(7)
 min_plot_width = 0.5
 max_plot_width = 1.2
 
