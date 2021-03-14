@@ -7,6 +7,7 @@ import os
 def to_rgb(mask_value):
     return (0., 0., 0.) if mask_value else (255., 255., 255.)
 
+
 all_files = os.listdir('examples')
 filtered = filter(lambda x: x.endswith('npy') and not x.startswith('scores'), all_files)
 masks_files = list(map(lambda x: x.split('.')[0], filtered))

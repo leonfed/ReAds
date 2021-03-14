@@ -76,7 +76,7 @@ for filename in masks_files:
         im = Image.fromarray(np.uint8(black_white_image))
         im.save('tmp.jpg')
 
-        tmp_image = cv2.imread('tmp.jpg')
+        tmp_image = cv2.imread('tmp3.jpg')
         im_bw = cv2.cvtColor(tmp_image, cv2.COLOR_RGB2GRAY)
         blur = cv2.GaussianBlur(im_bw, (5, 5), 0)
         im_bw = cv2.Canny(blur, 10, 90)
