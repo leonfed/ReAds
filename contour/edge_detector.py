@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
 
-filename = '36'
+filename = '275'
 
 img = cv2.imread('source/%s.jpg' % filename, 0)
 edges = cv2.Canny(img, 0, 100)
@@ -23,9 +23,11 @@ contours_score = []
 for c in contours:
     peri = cv2.arcLength(c, True)
     approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-    if len(approx) == 4:
+    if len(approx) == 4 and cv2.contourArea(approx) > 100.0:
         quadrilateral_contours.append(approx)
         contours_score.append(0)
+
+print("quadrilateral_contours: %s" % len(quadrilateral_contours))
 
 path = "/home/fedleonid/Study/diploma/detectron_test_data/input/%s.jpg" % filename
 masks = np.load('examples/%s.npy' % filename)
@@ -106,5 +108,5 @@ for c in range(len(quadrilateral_contours)):
 print(max_index)
 print(max_score)
 
-cv2.drawContours(original_image, [quadrilateral_contours[max_index]], -1, (0, 255, 0), 7)
+cv2.drawContours(original_image, [quadrilateral_contours[max_index]], -1, (0, 255, 0), 3)
 cv2.imwrite('contours.jpg', original_image)
