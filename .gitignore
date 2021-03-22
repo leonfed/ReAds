@@ -9,7 +9,7 @@ raw_screenshots/
 boxes/
 banner/
 contour/results/
-contour/examples/
+contour/mask_rcnn/
 contour/results_with_counters/
 contour/source/
 contour/maximize_results/
