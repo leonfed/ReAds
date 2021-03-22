@@ -89,5 +89,4 @@ for filename in masks_files:
                 cv2.drawContours(tmp_image, [approx], -1, (0, 255, 0), 3)
 
         cv2.imwrite('contours.jpg', tmp_image)
-        exit()
     cv2.imwrite('results/%s.jpg' % filename, original_image)
