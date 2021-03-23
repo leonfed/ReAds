@@ -5,27 +5,11 @@ import os
 from collections import deque
 
 from contour.color_difference import is_similar_color
-
-
-def to_rgb(mask_value):
-    return (0., 0., 0.) if mask_value else (255., 255., 255.)
-
-
-# находим контур с максимальной площадью
-def find_max_contour(contours):
-    max_index = 0
-    max_area = cv2.contourArea(contours[0])
-    for i in range(2, len(contours)):
-        area = cv2.contourArea(contours[i])
-        if area > max_area:
-            max_area = area
-            max_index = i
-
-    return contours[max_index]
+from contour.utils import to_rgb, find_max_contour
 
 
 def scale_contour(contour):
-    scale_coefficient = 0.9
+    scale_coefficient = 0.90
     M = cv2.moments(contour)
     cx = int(M['m10'] / M['m00'])
     cy = int(M['m01'] / M['m00'])
@@ -60,12 +44,23 @@ filtered = filter(lambda x: x.endswith('npy') and not x.startswith('scores'), al
 masks_files = list(map(lambda x: x.split('.')[0], filtered))
 print(masks_files)
 
-masks_files = [masks_files[0]]
+# masks_files = masks_files[0:10]
+# masks_files = [masks_files[10]]
+# masks_files = [masks_files[40]]
+masks_files = ['295']
 
 for filename in masks_files:
     print(filename)
     masks = np.load('masks/%s.npy' % filename)
     scores = np.load('masks/scores_%s.npy' % filename)
+
+    # читаем оригинальное изображение
+    path = "/home/fedleonid/Study/diploma/detectron_test_data/input/%s.jpg" % filename
+    image = Image.open(path)
+    image_width = image.size[0]
+    image_height = image.size[1]
+    image_pix = image.load()
+    original_image = cv2.imread(path)
 
     # выделить контуры
     for k in range(len(masks)):
@@ -90,15 +85,6 @@ for filename in masks_files:
         scaled_contour = scale_contour(max_contour)
         cv2.drawContours(tmp_image, [scaled_contour], -1, (0, 0, 255), 3)
 
-        # читаем оригинальное изображение
-        path = "/home/fedleonid/Study/diploma/detectron_test_data/input/%s.jpg" % filename
-        image = Image.open(path)
-        image_width = image.size[0]
-        image_height = image.size[1]
-        image_pix = image.load()
-
-        original_image = cv2.imread(path)
-
         # массив пикселей, которые отнесены к баннеру
         selected_pixels = np.zeros((image_height, image_width), dtype=bool)
 
@@ -116,8 +102,8 @@ for filename in masks_files:
         # определяем финальный контур
         black_white_image = np.array([[to_rgb(c) for c in r] for r in selected_pixels])
         im = Image.fromarray(np.uint8(black_white_image))
-        im.save('tmp.jpg')
-        tmp_image = cv2.imread('tmp.jpg')
+        im.save('tmp2_%s.jpg' % k)
+        tmp_image = cv2.imread('tmp2_%s.jpg' % k)
         im_bw = cv2.cvtColor(tmp_image, cv2.COLOR_RGB2GRAY)
         blur = cv2.GaussianBlur(im_bw, (5, 5), 0)
         im_bw = cv2.Canny(blur, 10, 90)
@@ -126,4 +112,5 @@ for filename in masks_files:
         peri = cv2.arcLength(max_contour, True)
         approx = cv2.approxPolyDP(max_contour, 0.02 * peri, True)
         cv2.drawContours(original_image, [approx], -1, (0, 255, 0), 3)
-        cv2.imwrite('by_color_results/%s.jpg' % filename, original_image)
+
+    cv2.imwrite('by_color_results/%s.jpg' % filename, original_image)
