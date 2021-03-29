@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 from contour.utils import to_rgb, find_max_contour
 
-filename = '247'
+filename = 'synthetic_16'
 
 img = cv2.imread('source/%s.jpg' % filename, 0)
 kernel = np.ones((5,5),np.uint8)
@@ -102,6 +102,8 @@ for t in range(len(masks)):
 
     print(max_index)
     print(max_score)
+
+    print(current_contours[max_index])
 
     cv2.drawContours(original_image, [current_contours[max_index]], -1, (0, 255, 0), 3)
 
