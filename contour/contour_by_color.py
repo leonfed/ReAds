@@ -92,7 +92,7 @@ for filename in masks_files:
 
         for i in range(len(selected_pixels)):
             for j in range(len(selected_pixels[0])):
-                dist = cv2.pointPolygonTest(scaled_contour, (j, i), True)
+                dist = cv2.pointPolygonTest(scaled_contour, (j, i), False)
                 if matrix[i][j] and dist >= 0.0:
                     selected_pixels[i][j] = True
                     started_points.append((i, j))

@@ -6,8 +6,8 @@ import pandas
 
 all_corners = pandas.read_csv('corners.csv').values
 
-vertical_images_name = ['41', '42']
-horizontal_images_name = ['7']
+vertical_images_name = ['2', '4', '5', '6', '8', '9', '10', '23', '27', '30', '34', '35', '36', '39', '40', '41', '42']
+horizontal_images_name = ['1', '3', '7', '11', '12', '13', '15', '16', '17', '18', '20', '22', '28', '31', '38', '43']
 
 for corners in all_corners:
     print('Corners: %s' % corners)
