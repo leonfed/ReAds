@@ -30,7 +30,7 @@ def line_formula(p1, p2):
     return A, B, -C
 
 
-def find_intersection(line1, line2, height, width):
+def find_intersection(line1, line2):
     L1 = line_formula(line1[0:2], line1[2:4])
     L2 = line_formula(line2[0:2], line2[2:4])
     if L1 == L2:
@@ -38,12 +38,9 @@ def find_intersection(line1, line2, height, width):
     D = L1[0] * L2[1] - L1[1] * L2[0]
     Dx = L1[2] * L2[1] - L1[1] * L2[2]
     Dy = L1[0] * L2[2] - L1[2] * L2[0]
-    if D != 0 :
+    if D != 0:
         x = Dx / D
         y = Dy / D
-        if 0 <= x <= width and 0 <= y <= height:
-            return [int(x), int(y)]
-        else:
-            return None
+        return [int(x), int(y)]
     else:
         return None

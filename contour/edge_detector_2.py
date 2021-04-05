@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 from contour.utils import find_max_contour, to_rgb, find_intersection
 
-filename = '339'
+filename = '162'
 print(filename)
 
 # читаем как черно-белое
@@ -24,7 +24,7 @@ edges_img = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
 cv2.imwrite('tmp2.jpg', edges_img)
 
 # находим линии на контуре
-linesP = cv2.HoughLinesP(edges, 1, np.pi / 180, 40, None, 50, 10)
+linesP = cv2.HoughLinesP(edges, 1, np.pi / 180, 40, None, 40, 10)
 
 original_path = "/home/fedleonid/Study/diploma/detectron_test_data/input/%s.jpg" % filename
 original_image = cv2.imread(original_path)
@@ -34,6 +34,8 @@ scores = np.load('masks/scores_%s.npy' % filename)
 
 # ищем контуры
 contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+print("Mask size: ", len(masks))
 
 # перебираем маски
 for k in range(len(masks)):
@@ -64,7 +66,7 @@ for k in range(len(masks)):
 
     # фильтруем найденные линии
     limit_line_length = np.sqrt(mask_area) / 4.0
-    permissible_distance = np.sqrt(mask_area) / 4.0
+    permissible_distance = -np.sqrt(mask_area) / 6.0
     filtered_lines = []
     for i in range(0, len(linesP)):
         x1, y1, x2, y2 = linesP[i][0]
@@ -73,7 +75,7 @@ for k in range(len(masks)):
         line_length = np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
         dist1 = cv2.pointPolygonTest(max_contour, (x1, y1), True)
         dist2 = cv2.pointPolygonTest(max_contour, (x2, y2), True)
-        if line_length < limit_line_length or dist1 < -permissible_distance or dist2 < -permissible_distance:
+        if line_length < limit_line_length or dist1 < permissible_distance or dist2 < permissible_distance:
             continue
         filtered_lines.append(linesP[i][0])
 
@@ -85,45 +87,48 @@ for k in range(len(masks)):
         cv2.drawContours(original_image_for_lines, [c], -1, (0, 0, 255), 3, cv2.LINE_AA)
     cv2.imwrite('tmp3.jpg', original_image_for_lines)
 
+    # рисуем линии по отдельности (для дебага)
+    # for i in range(len(filtered_lines)):
+    #     original_image_t = cv2.imread(original_path)
+    #     c = np.array([filtered_lines[i][0:2], filtered_lines[i][2:4]])
+    #     cv2.drawContours(original_image_t, [c], -1, (0, 255, 0), 3)
+    #     cv2.imwrite('line_%i.jpg' % i, original_image_t)
+
     # найдем контуры и сравним их площадь с площадью маски
     print("Lines size: ", len(filtered_lines))
     contours_with_areas_coef = []
     for i1 in range(len(filtered_lines)):
         print("Current first line: ", i1)
-        line1 = filtered_lines[i1]
-
         for i2 in range(i1 + 1, len(filtered_lines)):
-            line2 = filtered_lines[i2]
-            point1 = find_intersection(line1, line2, height, width)
-            if point1 == None or (line1 == line2).all():
-                continue
-
             for i3 in range(i2 + 1, len(filtered_lines)):
-                line3 = filtered_lines[i3]
-                point2 = find_intersection(line2, line3, height, width)
-                if point2 == None or (line3 == line1).all() or (line3 == line2).all():
-                    continue
-
                 for i4 in range(i3 + 1, len(filtered_lines)):
+                    line1 = filtered_lines[i1]
+                    line2 = filtered_lines[i2]
+                    line3 = filtered_lines[i3]
                     line4 = filtered_lines[i4]
-                    point3 = find_intersection(line3, line4, height, width)
-                    if point3 == None:
-                        continue
-                    point4 = find_intersection(line4, line1, height, width)
-                    if point4 == None:
-                        continue
-                    if (line4 == line1).all() or (line4 == line2).all() or (line4 == line3).all():
-                        continue
 
 
-                    def add_contour(c):
+                    def add_contour(l1, l2, l3, l4):
+                        point1 = find_intersection(l1, l2)
+                        point2 = find_intersection(l2, l3)
+                        point3 = find_intersection(l3, l4)
+                        point4 = find_intersection(l4, l1)
+                        if any(p is None for p in [point1, point2, point3, point4]):
+                            return
+                        dist1 = cv2.pointPolygonTest(max_contour, (point1[0], point1[1]), True)
+                        dist2 = cv2.pointPolygonTest(max_contour, (point2[0], point2[1]), True)
+                        dist3 = cv2.pointPolygonTest(max_contour, (point3[0], point3[1]), True)
+                        dist4 = cv2.pointPolygonTest(max_contour, (point4[0], point4[1]), True)
+                        if any(d < permissible_distance for d in [dist1, dist2, dist3, dist4]):
+                            return
+                        c = np.array([point1, point2, point3, point4, point1])
                         coeff = abs(mask_area - cv2.contourArea(c))
                         contours_with_areas_coef.append((coeff, c))
 
 
-                    add_contour(np.array([point1, point2, point3, point4, point1]))
-                    add_contour(np.array([point1, point2, point4, point3, point1]))
-                    add_contour(np.array([point1, point3, point2, point4, point1]))
+                    add_contour(line1, line2, line3, line4)
+                    add_contour(line1, line2, line4, line3)
+                    add_contour(line1, line3, line2, line4)
 
     # сортируем
     contours_with_areas_coef = sorted(contours_with_areas_coef, key=lambda x: x[0])
@@ -141,6 +146,12 @@ for k in range(len(masks)):
                          cv2.LINE_AA)
     cv2.imwrite('tmp4.jpg', original_image_for_candidates)
 
+    # выведем контуры в разные изображения (для дебага)
+    # for i in range(len(candidates_contours)):
+    #     original_image_t = cv2.imread(original_path)
+    #     cv2.drawContours(original_image_t, [candidates_contours[i]], -1, (0, 255, 0), 3)
+    #     cv2.imwrite('contours_%i.jpg' % i, original_image_t)
+
     # считаем score пересечения контура и маски
     print("Matrix: %s" % str(len(matrix)))
     for i in range(len(matrix)):
@@ -154,6 +165,8 @@ for k in range(len(masks)):
                 if not matrix[i][j] and dist >= 0.0:
                     candidates_score[c] -= 1
 
+    print("Candidates score: ", candidates_score)
+
     # выбираем наилучший контур
     max_index = 0
     max_score = candidates_score[0]
@@ -161,6 +174,8 @@ for k in range(len(masks)):
         if candidates_score[c] > max_score:
             max_score = candidates_score[c]
             max_index = c
+
+    print("Max index: ", max_index)
 
     # рисуем наилучший контур
     cv2.drawContours(original_image, [candidates_contours[max_index]], -1, (0, 255, 0), 3)
