@@ -22,4 +22,5 @@ homography/cv2_results/
 **/*.png
 **/*.npy
 **/*.json
+homography/corners.csv
 sample.py
