@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 
 from contour.utils import find_max_contour, to_rgb, find_intersection
 
-filename = '162'
+filename = '555'
 print(filename)
 
 # читаем как черно-белое
@@ -18,7 +18,7 @@ img = cv2.imread('source/%s.jpg' % filename, cv2.IMREAD_GRAYSCALE)
 # img = cv2.dilate(img, kernel)
 # img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
 # img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
-edges = cv2.Canny(img, 50, 500, None, 3)
+edges = cv2.Canny(img, 20, 600, None, 3)
 
 edges_img = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
 cv2.imwrite('tmp2.jpg', edges_img)

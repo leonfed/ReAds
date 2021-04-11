@@ -5,7 +5,7 @@ from PIL import Image
 from io import BytesIO
 import pathlib
 
-from utils import rgb2hex, hex2rgb
+from generation.utils import hex2rgb
 
 byte_io = BytesIO()
 

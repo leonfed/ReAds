@@ -8,8 +8,8 @@ import random
 import sys
 from PIL import Image
 
-from room import get_room
-from utils import rgb2hex
+from generation.room import get_room
+from generation.utils import rgb2hex
 
 images_count = 98
 iterations_count = 10

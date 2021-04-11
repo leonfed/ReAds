@@ -1,13 +1,9 @@
-import uuid
-
 from plyfile import PlyData
 import numpy as np
 from random import randint
-from random import shuffle
-import random
 import sys
 
-from room import get_room
+from generation.room import get_room
 
 room_name, wall_indexes = get_room(7)
 
