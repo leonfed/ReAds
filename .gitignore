@@ -24,3 +24,4 @@ homography/cv2_results/
 **/*.json
 homography/corners.csv
 sample.py
+**/synthetic_ground_truth.csv
