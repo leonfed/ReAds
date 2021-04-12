@@ -27,8 +27,7 @@ for filename in masks_files:
         print("Skip " + filename + " because masks is empty")
         continue
 
-    input_filename = filename + '.png' if filename.startswith('synthetic_') \
-        else filename + '.jpg'
+    input_filename = filename + '.png' if filename.startswith('synthetic_') else filename + '.jpg'
     original_image = cv2.imread('../test_data/input/' + input_filename)
 
     # убрать накладывающиеся

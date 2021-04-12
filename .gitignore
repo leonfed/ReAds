@@ -26,3 +26,5 @@ homography/corners.csv
 sample.py
 **/synthetic_ground_truth.csv
 detectron_model_v2.pth
+**/*.mp4
+**/*.avi
