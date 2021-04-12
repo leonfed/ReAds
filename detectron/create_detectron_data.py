@@ -4,6 +4,9 @@ import shutil
 
 import pandas
 
+# не перезаписывать текущие сеты
+exit()
+
 # удалить содержимое папок
 shutil.rmtree('detectron_test_data')
 os.makedirs('detectron_test_data')
@@ -12,6 +15,7 @@ os.makedirs('detectron_train_data')
 
 # прочитать синтетические фото
 synthetic_data = pandas.read_csv('../generation/banner/annotation.csv').values
+synthetic_data = [t.copy() for t in synthetic_data]
 random.shuffle(synthetic_data)
 
 # разделить на тестовыей и тренировычный
@@ -32,13 +36,13 @@ for current_data in test_synthetic_data:
     [screenshot, room, wall_index, image, x1, y1, x2, y2, x3, y3, x4, y4] = current_data
     filename = 'synthetic_' + str(synthetic_index)
     synthetic_index += 1
-    shutil.copy('../generation/banner/%s.png' % screenshot, 'detectron_test_data/%s.jpg' % filename)
+    shutil.copy('../generation/banner/%s.png' % screenshot, 'detectron_test_data/%s.png' % filename)
     test_synthetic_csv.write("%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (filename, x1, y1, x2, y2, x3, y3, x4, y4))
 for current_data in train_synthetic_data:
     [screenshot, room, wall_index, image, x1, y1, x2, y2, x3, y3, x4, y4] = current_data
     filename = 'synthetic_' + str(synthetic_index)
     synthetic_index += 1
-    shutil.copy('../generation/banner/%s.png' % screenshot, 'detectron_train_data/%s.jpg' % filename)
+    shutil.copy('../generation/banner/%s.png' % screenshot, 'detectron_train_data/%s.png' % filename)
     train_synthetic_csv.write("%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (filename, x1, y1, x2, y2, x3, y3, x4, y4))
 
 print("Synthetic - OK")

@@ -55,7 +55,7 @@ for filename in masks_files:
     scores = np.load('masks/scores_%s.npy' % filename)
 
     # читаем оригинальное изображение
-    path = "/home/fedleonid/Study/diploma/detectron_test_data/input/%s.jpg" % filename
+    path = "source/%s.jpg" % filename
     image = Image.open(path)
     image_width = image.size[0]
     image_height = image.size[1]
@@ -92,6 +92,8 @@ for filename in masks_files:
 
         for i in range(len(selected_pixels)):
             for j in range(len(selected_pixels[0])):
+                print(scaled_contour)
+                exit()
                 dist = cv2.pointPolygonTest(scaled_contour, (j, i), False)
                 if matrix[i][j] and dist >= 0.0:
                     selected_pixels[i][j] = True
