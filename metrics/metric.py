@@ -12,8 +12,13 @@ def to_rgb(mask_value):
     return (0., 0., 0.) if mask_value else (255., 255., 255.)
 
 
-contours_files = os.listdir('../test_data/quad_output')
-contours_files = sorted(contours_files)
+dir_path = '../test_data/quad_output/'
+
+all_images = os.listdir('../test_data/input')
+all_images = sorted(all_images)
+
+contours_files = os.listdir(dir_path)
+contours_files = set(map(lambda x: x.split('.')[0], contours_files))
 print(contours_files)
 print('\n')
 
@@ -25,12 +30,16 @@ for d in synthetic_gt_data:
     c = np.array([[x1, y1], [x2, y2], [x4, y4], [x4, y4]])
     synthetic_gt_contours[filename] = c
 
-for raw_filename in contours_files:
-    filename = raw_filename.split('.')[0]
+for raw_image_name in all_images:
+    filename = raw_image_name.split('.')[0]
+
+    if not contours_files.__contains__(filename):
+        print("%s\t%s\t%s\t%s\t%s" % (raw_image_name, '-', '-', '-', '-'))
+        continue
 
     mask = np.load('../test_data/masks/%s.npy' % filename)
 
-    contour = np.load('../test_data/quad_output/' + raw_filename)
+    contour = np.load(dir_path + filename + '.npy')
     contour = np.append(contour, [contour[0]], axis=0)
     contour = np.vectorize(lambda x: int(x))(contour)
 
@@ -79,7 +88,7 @@ for raw_filename in contours_files:
     gt_contour = get_synthetic_gt_contour() if filename.startswith('synthetic_') else get_real_gt_contour()
 
     if gt_contour is None:
-        print("%s\t%s\t%s\t%s\t%s" % (raw_filename, '-', '-', '-', '-'))
+        print("%s\t%s\t%s\t%s\t%s" % (raw_image_name, '-', '-', '-', '-'))
         continue
 
     tp = 0
@@ -94,11 +103,11 @@ for raw_filename in contours_files:
             is_in_gt = cv2.pointPolygonTest(gt_contour, point, False) >= 0.0
             if is_in_contour and is_in_gt:
                 tp += 1
-            elif is_in_contour and is_in_gt:
+            elif is_in_contour and not is_in_gt:
                 fp += 1
             elif not is_in_contour and is_in_gt:
                 fn += 1
             elif not is_in_contour and not is_in_gt:
                 tn += 1
 
-    print("%s\t%s\t%s\t%s\t%s" % (raw_filename, tp, tn, fp, fn))
+    print("%s\t%s\t%s\t%s\t%s" % (raw_image_name, tp, tn, fp, fn))
