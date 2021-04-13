@@ -133,6 +133,8 @@ for filename in masks_files:
     blur = cv2.GaussianBlur(im_bw, (5, 5), 0)
     im_bw = cv2.Canny(blur, 10, 90)
     contours, _ = cv2.findContours(im_bw, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    if len(contours) == 0:
+        print("Skip because contours not found")
     max_contour = find_max_contour(contours)
     peri = cv2.arcLength(max_contour, True)
 
