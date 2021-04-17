@@ -12,7 +12,7 @@ def to_rgb(mask_value):
     return (0., 0., 0.) if mask_value else (255., 255., 255.)
 
 
-dir_path = '../test_data/color_output/'
+dir_path = '../test_data/edge_output/'
 
 all_images = os.listdir('../test_data/input')
 all_images = sorted(all_images)

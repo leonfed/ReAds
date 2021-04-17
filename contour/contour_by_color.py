@@ -59,19 +59,19 @@ class DFS:
                         self.points.append((i, j))
 
 
-files = os.listdir('../test_data/masks')
+files = os.listdir('../video/data/masks')
 masks_files = list(map(lambda x: x.split('.')[0], files))
 print(masks_files)
 
-masks_files = ['synthetic_4']
+masks_files = ['0']
 
 for filename in masks_files:
     print(filename)
-    mask = np.load('../test_data/masks/%s.npy' % filename)
+    mask = np.load('../video/data/masks/%s.npy' % filename)
 
     # читаем оригинальное изображение
     input_filename = filename + '.png' if filename.startswith('synthetic_') else filename + '.jpg'
-    path = "../test_data/input/" + input_filename
+    path = "../video/data/input/" + input_filename
     image = Image.open(path)
     image_width = image.size[0]
     image_height = image.size[1]

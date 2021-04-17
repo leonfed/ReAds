@@ -11,20 +11,20 @@ def to_rgb(mask_value):
 
 
 # удалить содержимое папки
-shutil.rmtree('../test_data/masks_raw_contours')
-os.makedirs('../test_data/masks_raw_contours')
+shutil.rmtree('../video/data/masks_raw_contours')
+os.makedirs('../video/data/masks_raw_contours')
 
-masks_files = os.listdir('../test_data/masks')
+masks_files = os.listdir('../video/data/masks')
 print(masks_files)
 
 for raw_filename in masks_files:
     filename = raw_filename.split('.')[0]
     print(filename)
 
-    mask = np.load('../test_data/masks/' + raw_filename)
+    mask = np.load('../video/data/masks/' + raw_filename)
 
     input_filename = filename + '.png' if filename.startswith('synthetic_') else filename + '.jpg'
-    original_image = cv2.imread('../test_data/input/' + input_filename)
+    original_image = cv2.imread('../video/data/input/' + input_filename)
 
     black_white_image = np.array([[to_rgb(c) for c in r] for r in mask])
     im = Image.fromarray(np.uint8(black_white_image))
@@ -43,4 +43,4 @@ for raw_filename in masks_files:
         if len(approx) > 0:
             cv2.drawContours(original_image, [approx], -1, (0, 255, 0), 3)
 
-    cv2.imwrite('../test_data/masks_raw_contours/%s.jpg' % filename, original_image)
+    cv2.imwrite('../video/data/masks_raw_contours/%s.jpg' % filename, original_image)

@@ -7,21 +7,21 @@ from PIL import Image
 from contour.utils import find_max_contour, to_rgb, find_intersection
 
 canny_threshold1 = 20
-canny_threshold2 = 600
+canny_threshold2 = 50
 
-image_name = 'synthetic_2.png'
+image_name = '4.jpg'
 filename = image_name.split('.')[0]
 print(image_name)
-original_path = '../test_data/input/' + image_name
+original_path = '../video/data/input/' + image_name
 original_image = cv2.imread(original_path)
 
 # читаем как черно-белое
 img = cv2.imread(original_path, cv2.IMREAD_GRAYSCALE)
 # преобразование для сглаживания
-# kernel = np.ones((9,9),np.uint8)
-# img = cv2.dilate(img, kernel)
-# img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-# img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+kernel = np.ones((9,9),np.uint8)
+img = cv2.dilate(img, kernel)
+img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
 edges = cv2.Canny(img, canny_threshold1, canny_threshold2, None, 3)
 
 # записываем изображение контуров (для дебага)
@@ -35,7 +35,7 @@ linesP = cv2.HoughLinesP(edges, 1, np.pi / 180, 40, None, 40, 10)
 # ищем контуры
 contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-mask = np.load('../test_data/masks/%s.npy' % filename)
+mask = np.load('../video/data/masks/%s.npy' % filename)
 height = len(mask)
 width = len(mask[0])
 
@@ -57,7 +57,7 @@ mask_area = cv2.contourArea(max_contour)
 print("Mask area: ", mask_area)
 
 # фильтруем найденные линии
-limit_line_length = np.sqrt(mask_area) / 4.0
+limit_line_length = np.sqrt(mask_area) / 10.0
 permissible_distance = -np.sqrt(mask_area) / 4.0
 filtered_lines = []
 for i in range(0, len(linesP)):
@@ -90,7 +90,7 @@ cv2.imwrite('tmp3.jpg', original_image_for_lines)
 print("Lines size: ", len(filtered_lines))
 contours_with_areas_coef = []
 for i1 in range(len(filtered_lines)):
-    # print("Current first line: ", i1)
+    print("Current first line: ", i1)
     for i2 in range(i1 + 1, len(filtered_lines)):
         for i3 in range(i2 + 1, len(filtered_lines)):
             for i4 in range(i3 + 1, len(filtered_lines)):
@@ -125,7 +125,7 @@ for i1 in range(len(filtered_lines)):
 # сортируем
 contours_with_areas_coef = sorted(contours_with_areas_coef, key=lambda x: x[0])
 print("Contours size: ", len(contours_with_areas_coef))
-candidates_contours = list(map(lambda t: t[1], contours_with_areas_coef[0:11]))
+candidates_contours = list(map(lambda t: t[1], contours_with_areas_coef[0:101]))
 candidates_score = [0 for _ in candidates_contours]
 
 if len(candidates_contours) == 0:
@@ -150,6 +150,10 @@ min_0 = min(list(map(lambda c: min(list(map(lambda e: e[0], c))), candidates_con
 max_0 = max(list(map(lambda c: max(list(map(lambda e: e[0], c))), candidates_contours)))
 min_1 = min(list(map(lambda c: min(list(map(lambda e: e[1], c))), candidates_contours)))
 max_1 = max(list(map(lambda c: max(list(map(lambda e: e[1], c))), candidates_contours)))
+min_0 = max(0, min_0)
+max_0 = min(len(mask[0]) - 1, max_0)
+min_1 = max(0, min_1)
+max_1 = min(len(mask) - 1, max_1)
 print("Limits:", min_0, max_0, min_1, max_1)
 
 # считаем score пересечения контура и маски
