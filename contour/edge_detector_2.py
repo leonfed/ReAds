@@ -9,7 +9,7 @@ from contour.utils import find_max_contour, to_rgb, find_intersection
 canny_threshold1 = 20
 canny_threshold2 = 50
 
-image_name = '4.jpg'
+image_name = '115.jpg'
 filename = image_name.split('.')[0]
 print(image_name)
 original_path = '../video/data/input/' + image_name

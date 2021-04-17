@@ -8,13 +8,14 @@ from PIL import Image
 shutil.rmtree('data/final_result')
 os.makedirs('data/final_result')
 
-files_count = len(os.listdir('data/input'))
-print(files_count)
+files = os.listdir('data/processed_images')
+files = list(map(lambda x: x.split('.')[0], files))
+print(len(files))
 
-for i in range(files_count):
-    print(i)
-    path1 = 'data/input/%s.jpg' % i
-    path2 = 'data/input/%s.jpg' % i
+for filename in files:
+    print(filename)
+    path1 = 'data/input/%s.jpg' % filename
+    path2 = 'data/processed_images/%s.jpg' % filename
 
     img1 = Image.open(path1)
     img2 = Image.open(path2)
@@ -30,4 +31,4 @@ for i in range(files_count):
     res_img.paste(img1, (0, paste_height))
     res_img.paste(img2, (res_width - image_width, paste_height))
 
-    res_img.save("data/final_result/%s.jpg" % i)
+    res_img.save("data/final_result/%s.jpg" % filename)
