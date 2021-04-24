@@ -1,35 +1,25 @@
 import os
-import random
 import shutil
 
 import cv2
 import numpy as np
-import pandas
 
-image_path = '../video/data/banner.jpg'
 
-# удалить содержимое папки
-shutil.rmtree('../video/data/processed_images')
-os.makedirs('../video/data/processed_images')
-
-files = os.listdir('../video/data/average_contours')
-files = list(map(lambda x: x.split('.')[0], files))
-
-for filename in files:
+# заменить баннер на одном кадре
+def process(filename, image_path, input_path, contours_path, result_path):
     print(filename)
 
     img_banner = cv2.imread(image_path)
-    # Four corners of the book in banner image
     corners_banner = np.array(
         [[0, 0], [0, img_banner.shape[0]], [img_banner.shape[1], img_banner.shape[0]], [img_banner.shape[1], 0]])
 
-    # Read destination image.
-    img_dst = cv2.imread('../video/data/input/%s.jpg' % filename)
+    # Читаем кадр видео
+    img_dst = cv2.imread(input_path + filename + '.jpg')
 
-    # Four corners of the book in destination image.
-    contour = np.load('../video/data/average_contours/%s.npy' % filename)
-    # print(contour)
+    # Читаем углы баннера на кадре
+    contour = np.load(contours_path + filename + '.npy')
 
+    # сортируем углы по часовой стрелке
     min_sum = 10000
     x1, y1 = 0, 0
 
@@ -58,17 +48,12 @@ for filename in files:
             max_diff = diff
             x4, y4 = x, y
 
-    # print(x1, y1)
-    # print(x2, y2)
-    # print(x3, y3)
-    # print(x4, y4)
-
     corners_dst = np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
 
-    # Calculate Homography
+    # Вычисляем гомография
     h, status = cv2.findHomography(corners_banner, corners_dst)
 
-    # Warp source image to destination based on homography
+    # Проецируем баннер
     img_out = cv2.warpPerspective(img_banner, h, (img_dst.shape[1], img_dst.shape[0]))
 
     # Удалить баннер, который надо заменить
@@ -78,4 +63,29 @@ for filename in files:
 
     # Смержить изображения
     img_res = cv2.addWeighted(img_dst, 1, img_out, 1, 0.0)
-    cv2.imwrite("../video/data/processed_images/%s.jpg" % filename, img_res)
+    cv2.imwrite(result_path + filename + '.jpg', img_res)
+
+
+# Замена баннера на кадрах видео
+if __name__ == "__main__":
+    # путь до баннера, который нужно вставить
+    image_path = '../video/data/banner.jpg'
+
+    # путь до контуров
+    contours_path = '../video/data/average_contours/'
+
+    # путь до кадров
+    input_path = '../video/data/input/'
+
+    # путь до директории, куда нужно поместить кадры с замененным баннером
+    result_path = '../video/data/processed_images/'
+
+    # удалить содержимое директории
+    # shutil.rmtree(result_path)
+    # os.makedirs(result_path)
+
+    files = os.listdir(contours_path)
+    files = list(map(lambda x: x.split('.')[0], files))
+
+    for filename in files:
+        process(filename, image_path, input_path, contours_path, result_path)
