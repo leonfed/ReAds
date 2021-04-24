@@ -1,13 +1,13 @@
 names = [
-    "apartment_2",  # not enough, but it's hard to create these
-    "office_1",  # skip it because colors
-    "office_2",  # ready
-    "apartment_1",  # ready
-    "frl_apartment_0",  # it's hard to create these (0 from 30 attempts)
-    "frl_apartment_1", # it's also hard to create these (but I haven't tried)
-    "office_0",  # skip it because colors
-    "office_3", # strange rotate
-    "office_4", # strange rotate
+    "apartment_2",
+    "office_1",
+    "office_2",
+    "apartment_1",
+    "frl_apartment_0",
+    "frl_apartment_1",
+    "office_0",
+    "office_3",
+    "office_4",
     ""
 ]
 
@@ -20,7 +20,7 @@ wall_indexes = [
     [172, 168, 57, 5, 4, 28, 29, 23, 87, 88, 92, 100, 118, 129, 132, 148],
     [51, 18, 8, 26, 24],
     [34, 17, 13, 19],
-    [56, 54, 47, 41, 8, 11, 28, 24,35]
+    [56, 54, 47, 41, 8, 11, 28, 24, 35]
 ]
 
 

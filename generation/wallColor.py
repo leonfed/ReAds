@@ -1,53 +1,52 @@
-import functools
-
-from plyfile import PlyData
-import numpy as np
-from random import randint
-from random import random
 import sys
-from PIL import Image
+from random import randint
 
-plydata = PlyData.read('/home/fedleonid/Study/diploma/replica_v1/apartment_2/habitat/mesh_semantic.ply')
-print(plydata)
-face = plydata['face']
-vertex = plydata['vertex']
-face_data = np.array(face.data.copy())
-vertex_data = np.array(vertex.data.copy())
+import numpy as np
+from plyfile import PlyData
 
-print('face len: %s' % len(face.data))
-print('vertex len: %s' % len(vertex.data))
-# print(face.data)
-# print(vertex.data)
+# Скрипт, который раскрашивает стены. Удобен для дебага
+if __name__ == "__main__":
 
-vertex_len = len(vertex.data)
+    plydata = PlyData.read('/home/fedleonid/Study/diploma/replica_v1/apartment_2/habitat/mesh_semantic.ply')
+    print(plydata)
+    face = plydata['face']
+    vertex = plydata['vertex']
+    face_data = np.array(face.data.copy())
+    vertex_data = np.array(vertex.data.copy())
 
-indexes = set()
+    print('face len: %s' % len(face.data))
+    print('vertex len: %s' % len(vertex.data))
+    # print(face.data)
+    # print(vertex.data)
 
-wall_ids = {76}
-# wall_ids = {169}
+    vertex_len = len(vertex.data)
 
-for i in range(len(face.data)):
-    if wall_ids.__contains__(face.data[i][1]):
-        for e in face.data[i][0]:
-            indexes.add(e)
+    indexes = set()
 
-print(len(indexes))
+    wall_ids = {76}
 
-points = []
+    for i in range(len(face.data)):
+        if wall_ids.__contains__(face.data[i][1]):
+            for e in face.data[i][0]:
+                indexes.add(e)
 
-for i in indexes:
-    vertex_data[i] = (vertex_data[i][0], vertex_data[i][1], vertex_data[i][2],
-                      vertex_data[i][3], vertex_data[i][4], vertex_data[i][5],
-                      randint(0, 255), randint(0, 255), randint(0, 255))
+    print(len(indexes))
 
-vertex.data = vertex_data
-face.data = face_data
+    points = []
 
-# print(face.data)
-# print(vertex.data)
+    for i in indexes:
+        vertex_data[i] = (vertex_data[i][0], vertex_data[i][1], vertex_data[i][2],
+                          vertex_data[i][3], vertex_data[i][4], vertex_data[i][5],
+                          randint(0, 255), randint(0, 255), randint(0, 255))
 
-plydata.elements = [vertex, face]
+    vertex.data = vertex_data
+    face.data = face_data
 
-plydata.write('mesh_semantic.ply')
+    # print(face.data)
+    # print(vertex.data)
 
-sys.exit()
+    plydata.elements = [vertex, face]
+
+    plydata.write('mesh_semantic.ply')
+
+    sys.exit()

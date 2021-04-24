@@ -7,26 +7,24 @@ import pathlib
 
 from generation.utils import hex2rgb
 
-byte_io = BytesIO()
 
-file_screenshots_csv = open('screenshots.csv', 'a')
+def process_screenshot(data, raw_screenshots_path, result_path):
+    [screenshot, special_screenshot, special_color, room, wall_index, image] = data
 
-ply_data = pandas.read_csv('rawScreenshots.csv').values
+    print(screenshot)
 
-for i in range(len(ply_data)):
-    current_data = ply_data[i]
-
-    [screenshot, special_screenshot, special_color, room, wall_index, image] = current_data
-
-    path = pathlib.Path("screenshots/%s.png" % screenshot)
+    path = pathlib.Path(result_path + screenshot + '.png')
     if path.is_file():
         print("Path %s already exists\n" % path)
-        continue
+        return
 
     special_color_rbg = hex2rgb(special_color)
 
-    path_normal = "raw_screenshots/%s.png" % screenshot
-    path_special = "raw_screenshots/%s.png" % special_screenshot
+    # скриншот с вставленным баннером
+    path_normal = raw_screenshots_path + screenshot + '.png'
+
+    # скриншот, где вместо баннера расположен одноцветный прямоугольник
+    path_special = raw_screenshots_path + special_screenshot + '.png'
 
     screenshot_normal_png = Image.open(path_normal)
     screenshot_special_png = Image.open(path_special)
@@ -47,6 +45,7 @@ for i in range(len(ply_data)):
     max_diff = 0.0
     x4, y4 = 0, 0
 
+    # определяем углы
     for x in range(screenshot_width):
         for y in range(screenshot_height):
             colors_normal = screenshot_normal_pix[x, y]
@@ -69,11 +68,11 @@ for i in range(len(ply_data)):
 
     print("Vertices: (%s, %s), (%s, %s), (%s, %s), (%s, %s)" % (x1, y1, x2, y2, x3, y3, x4, y4))
 
-    path = "screenshots/%s.png" % screenshot
+    # сохраняем скриншот с вставленным баннером
     screenshot_normal_png.save(path)
     print("Save normal screenshot with %s" % path)
 
-
+    # рисуем границы на изображении
     def paint_edge(ax, ay, bx, by):
         if abs(bx - ax) >= abs(by - ay):
             step_y = (by - ay) / abs(bx - ax)
@@ -88,12 +87,12 @@ for i in range(len(ply_data)):
                 screenshot_normal_pix[cur_x, cur_y] = special_color_rbg
                 cur_x += step_x
 
-
     paint_edge(x1, y1, x2, y2)
     paint_edge(x2, y2, x3, y3)
     paint_edge(x3, y3, x4, y4)
     paint_edge(x4, y4, x1, y1)
 
+    # сохраняем скриншот с нарисванными границами
     path = "boxes/%s.png" % screenshot
     screenshot_normal_png.save(path)
     print("Save boxes screenshot with %s" % path)
@@ -102,6 +101,19 @@ for i in range(len(ply_data)):
                                (screenshot, room, wall_index, image,
                                 x1, y1, x2, y2, x3, y3, x4, y4))
 
-    print()
 
-sys.exit()
+# Скрипт для определения границ баннеров на сгенерируемых скриншотах 3d моделей
+if __name__ == "__main__":
+    byte_io = BytesIO()
+
+    file_screenshots_csv = open('screenshots.csv', 'a')
+
+    ply_data = pandas.read_csv('rawScreenshots.csv').values
+
+    raw_screenshots_path = 'raw_screenshots/'
+    result_path = 'screenshots/'
+
+    for i in range(len(ply_data)):
+        process_screenshot(ply_data[i], raw_screenshots_path, result_path)
+
+    sys.exit()

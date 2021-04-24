@@ -19,6 +19,9 @@ generation/generated/
 generation/raw_screenshots/
 generation/boxes/
 generation/banner/
+generation/real_photos_detectron.json
+generation/rawScreenshots.csv
+generation/plyGenerated.csv
 contour/results/
 contour/mask_rcnn/
 contour/results_with_counters/
