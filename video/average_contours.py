@@ -1,8 +1,6 @@
+import os
 import shutil
 
-import cv2
-import os
-from PIL import Image
 import numpy as np
 
 # удалить содержимое папки
@@ -13,7 +11,8 @@ files_count = len(os.listdir('data/final_result'))
 print(files_count)
 
 
-def find_points(contour):
+# сортирует точки по часовой
+def sort_points(contour):
     min_sum = 10000
     x1, y1 = 0, 0
 
@@ -45,28 +44,33 @@ def find_points(contour):
     return [x1, y1, x2, y2, x3, y3, x4, y4]
 
 
-all_points = []
+# усредняет контуры в соседних кадрах
+if __name__ == "__main__":
+    # количество контуров, среди которых контурры будут усреднены
+    # Кадр i усредняется с кадрами [i - window, i + window]
+    window = 10
 
-for i in range(files_count):
-    raw_contour = np.load('data/contours_fixed/%s.npy' % i)
-    all_points.append(find_points(raw_contour))
+    all_points = []
 
-def average_point(points):
-    answer = []
-    for i in range(len(points[0])):
-        all = list(map(lambda x: x[i], points))
-        p = sum(all) / len(points)
-        answer.append(int(p))
-    return answer
+    for i in range(files_count):
+        raw_contour = np.load('data/contours/%s.npy' % i)
+        all_points.append(sort_points(raw_contour))
 
 
-window = 10
+    def average_point(points):
+        answer = []
+        for i in range(len(points[0])):
+            all = list(map(lambda x: x[i], points))
+            p = sum(all) / len(points)
+            answer.append(int(p))
+        return answer
 
-for i in range(window, files_count - window):
-    left = max(0, i - window)
-    right = min(files_count, i + window)
-    [x1, y1, x2, y2, x3, y3, x4, y4] = average_point(all_points[left:right])
-    for_save = np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
-    np.save('data/average_contours/%s' % i, for_save)
 
-print("Ok")
+    for i in range(window, files_count - window):
+        left = max(0, i - window)
+        right = min(files_count, i + window)
+        [x1, y1, x2, y2, x3, y3, x4, y4] = average_point(all_points[left:right])
+        for_save = np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
+        np.save('data/average_contours/%s' % i, for_save)
+
+    print("Ok")
