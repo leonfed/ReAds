@@ -1,16 +1,11 @@
 import cv2
-import numpy as np
-from PIL import Image
-import os
-from collections import deque
-from shapely.geometry import LineString, Point
 
 
 def to_rgb(mask_value):
     return (0., 0., 0.) if mask_value else (255., 255., 255.)
 
 
-# находим контур с максимальной площадью
+# находит контур с максимальной площадью
 def find_max_contour(contours):
     max_index = 0
     max_area = cv2.contourArea(contours[0])
@@ -30,6 +25,7 @@ def line_formula(p1, p2):
     return A, B, -C
 
 
+# находит пересечение линий
 def find_intersection(line1, line2):
     L1 = line_formula(line1[0:2], line1[2:4])
     L2 = line_formula(line2[0:2], line2[2:4])

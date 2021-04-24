@@ -9,6 +9,7 @@ from collections import deque
 from contour.utils import to_rgb, find_max_contour
 
 
+# Уменьшает контур. Сжимает его к центру
 def scale_contour(contour):
     scale_coefficient = 0.90
     M = cv2.moments(contour)
@@ -23,6 +24,7 @@ def scale_contour(contour):
     return cnt_scaled
 
 
+# Обходит изображение. Добавляет в маску цвета, которые "близки" к другим цветам из маски
 class DFS:
     def __init__(self, image_pix, selected_pixels, points, banner_area, distance):
         self.image_pix = image_pix
@@ -59,19 +61,14 @@ class DFS:
                         self.points.append((i, j))
 
 
-files = os.listdir('../video/data/masks')
-masks_files = list(map(lambda x: x.split('.')[0], files))
-print(masks_files)
-
-masks_files = ['0']
-
-for filename in masks_files:
+# Обработка файла
+def process_file(filename, mask_path, image_path, result_path):
     print(filename)
-    mask = np.load('../video/data/masks/%s.npy' % filename)
+    mask = np.load(mask_path + filename + ".npy")
 
     # читаем оригинальное изображение
     input_filename = filename + '.png' if filename.startswith('synthetic_') else filename + '.jpg'
-    path = "../video/data/input/" + input_filename
+    path = image_path + input_filename
     image = Image.open(path)
     image_width = image.size[0]
     image_height = image.size[1]
@@ -140,14 +137,31 @@ for filename in masks_files:
 
     # немного апроксимируем
     approx = cv2.approxPolyDP(max_contour, 0.02 * peri, True)
-
     for_save = np.array([t[0] for t in approx])
     print(for_save)
 
     if len(for_save) < 4:
         print("Skip image because contour is not found")
     else:
+        # сохраняем результат обработки
         cv2.drawContours(original_image, [approx], -1, (0, 255, 0), 3)
-        cv2.imwrite('contour.jpg', original_image)
+        cv2.imwrite(result_path + filename + '.jpg', original_image)
+        np.save(result_path + filename, for_save)
 
     print('\n')
+
+
+# Определяет рамки баннеров, основываясь на похожести цветов
+if __name__ == "__main__":
+    # Путь до директории, где содержатся маски
+    mask_path_dir = '../video/data/masks'
+    # Путь до директории, куда нужно поместить результаты обработки
+    result_dir = '../video/data/contours'
+
+    # Обрабатывает все изображения в директории
+    files = os.listdir(mask_path_dir)
+    masks_files = list(map(lambda x: x.split('.')[0], files))
+    print(masks_files)
+
+    for filename in masks_files:
+        process_file(filename, '../video/data/masks/', "../video/data/contours/", result_dir)

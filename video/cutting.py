@@ -13,5 +13,8 @@ end_time_seconds = 12
 # для разбития про фреймам
 # ffmpeg -i file.mp4 -vf fps=1 %d.jpg
 
+# для зацикливания
+# ffmpeg -f concat -i for_merge.txt -c copy final_loop.mp4
+
 ffmpeg_extract_subclip(path, start_time_seconds, end_time_seconds, targetname="data/original.mp4")
 
