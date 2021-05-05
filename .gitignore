@@ -10,6 +10,7 @@ venv/
 **/synthetic_ground_truth.csv
 **/*.mp4
 **/*.avi
+**/*.pnt
 
 # пользовательские директории и файлы
 images/

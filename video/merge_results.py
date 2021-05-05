@@ -4,14 +4,14 @@ from PIL import Image
 
 # помещает два изображения рядом с друг с другом в одно jpg
 if __name__ == "__main__":
-    files = os.listdir('data/processed_images')
+    files = os.listdir('data/processed_images_v2')
     files = list(map(lambda x: x.split('.')[0], files))
     print(len(files))
 
     for filename in files:
         print(filename)
         path1 = 'data/input/%s.jpg' % filename
-        path2 = 'data/processed_images/%s.jpg' % filename
+        path2 = 'data/processed_images_v2/%s.jpg' % filename
 
         img1 = Image.open(path1)
         img2 = Image.open(path2)

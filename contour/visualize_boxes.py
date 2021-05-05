@@ -20,9 +20,9 @@ def process(filename, contour_path, image_path, result_path):
 
 # Рисует контуры
 if __name__ == "__main__":
-    contour_path = '../test_data/quad_output/'
-    image_path = '../test_data/input/'
-    result_path = '../test_data/quad_contours/'
+    contour_path = '../video/data/voodoo_contours/'
+    image_path = '../video/data/input/'
+    result_path = '../video/data/voodoo_contours_images/'
 
     files = os.listdir(contour_path)
     contours_files = list(map(lambda x: x.split('.')[0], files))

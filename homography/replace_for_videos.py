@@ -72,13 +72,13 @@ if __name__ == "__main__":
     image_path = '../video/data/banner.jpg'
 
     # путь до контуров
-    contours_path = '../video/data/average_contours/'
+    contours_path = '../video/data/voodoo_contours/'
 
     # путь до кадров
     input_path = '../video/data/input/'
 
     # путь до директории, куда нужно поместить кадры с замененным баннером
-    result_path = '../video/data/processed_images/'
+    result_path = '../video/data/processed_images_v2/'
 
     # удалить содержимое директории
     # shutil.rmtree(result_path)
