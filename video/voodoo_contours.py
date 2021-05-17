@@ -52,11 +52,11 @@ def get_points(point_3d, frame_params):
 
 # проецирует контур первого контура на другие контуры, опирайся на выход voodoo
 if __name__ == "__main__":
-    first_contour_path = 'data/contours/0.npy'
-    output_contour_path = 'data/voodoo_contours/'
-    frames_params_path = 'data/voodoo/frames_params.tsv'
-    points_3d_path = 'data/voodoo/3d_points.tsv'
-    frames_size = 144
+    first_contour_path = 'data_4/voodoo_contours/0.npy'
+    output_contour_path = 'data_4/voodoo_contours/'
+    frames_params_path = 'data_4/voodoo/frames_params.tsv'
+    points_3d_path = 'data_4/voodoo/3d_points.tsv'
+    frames_size = 187
 
     first_contour = np.load(first_contour_path)
     first_contour = sort_contour(first_contour)
