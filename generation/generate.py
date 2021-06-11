@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     session_id = uuid.uuid4()
 
-    path = 'mesh_semantic.ply'
+    path = 'mesh_semantic.etc.ply'
     plydata = PlyData.read(path)
     face = plydata['face']
     vertex = plydata['vertex']

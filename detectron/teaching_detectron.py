@@ -72,7 +72,7 @@ if __name__ == "__main__":
     MetadataCatalog.get("banner").set(thing_classes=["banner"])
     banners_metadata = MetadataCatalog.get("banner")
 
-    dataset_dicts = get_banner_dicts("detectron_train_data/")
+    dataset_dicts = get_banner_dicts(dataset_path)
 
     # Настраиваем
     cfg = get_cfg()

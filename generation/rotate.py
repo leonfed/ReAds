@@ -8,8 +8,8 @@ from generation.room import get_room
 # Поворачиваем 3d модель комнаты так, чтобы стены были вдоль осей OX и OY
 if __name__ == "__main__":
     # указаывем какую комнату хотим повернуть
-    room_name, wall_indexes = get_room(7)
-    path = '/home/fedleonid/Study/diploma/replica_v1/%s/habitat/mesh_semantic.ply' % room_name
+    _, wall_indexes = get_room(7)
+    path = 'mesh_semantic.etc.ply'
 
     plydata = PlyData.read(path)
     face = plydata['face']
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                           vertex.data[i][6], vertex.data[i][7], vertex.data[i][8])
 
     # записываем ответ
-    path = 'mesh_semantic.ply'
+    path = 'mesh_semantic.etc.ply'
     plydata.write(path)
 
     sys.exit()

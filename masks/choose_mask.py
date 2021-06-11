@@ -66,7 +66,7 @@ if __name__ == "__main__":
     masks_path = '../video/data/mask_rcnn_output/'
 
     # путь, куда записать результат
-    result_path = '../video/data/masks'
+    result_path = '../video/data/masks/'
 
     all_files = os.listdir('../video/data/mask_rcnn_output')
     filtered = filter(lambda x: x.endswith('npy') and not x.startswith('scores'), all_files)

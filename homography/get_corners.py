@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 # Скрипт для получения ground-truth углов реальных фотографий
 if __name__ == "__main__":
     # директория, где расположена аннтоция (разметка) фотографий
-    directory = '/home/fedleonid/Study/diploma/annotations_photos'
+    directory = 'annotations_photos/'
 
     all_files = os.listdir('source')
     filtered = filter(lambda x: not x.startswith('synthetic'), all_files)
@@ -14,7 +14,7 @@ if __name__ == "__main__":
     corners_csv = open('corners.csv', 'a')
 
     for filename in files:
-        tree = ET.parse(directory + "/" + filename + ".xml")
+        tree = ET.parse(directory + filename + ".xml")
 
         object = tree.getroot().findall("object")[0]
         xml_points = object.find('polygon').findall('pt')

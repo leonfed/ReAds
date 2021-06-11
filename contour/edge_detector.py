@@ -7,8 +7,8 @@ from PIL import Image
 from contour.utils import find_max_contour, to_rgb, find_intersection
 
 # константы для canny-edge-detector
-canny_threshold1 = 20
-canny_threshold2 = 50
+canny_threshold1 = 90
+canny_threshold2 = 150
 
 
 def process(filename, image_path, mask_path, result_path):
@@ -22,17 +22,18 @@ def process(filename, image_path, mask_path, result_path):
     # читаем как черно-белое
     img = cv2.imread(original_path, cv2.IMREAD_GRAYSCALE)
     # преобразование для сглаживания
-    kernel = np.ones((9, 9), np.uint8)
-    img = cv2.dilate(img, kernel)
-    img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-    img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
+    # kernel = np.ones((9, 9), np.uint8)
+    # img = cv2.dilate(img, kernel)
+    # img = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+    # img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel)
 
     # находим грани
     edges = cv2.Canny(img, canny_threshold1, canny_threshold2, None, 3)
 
     # записываем изображение контуров (для дебага)
-    # edges_img = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-    # cv2.imwrite('tmp2.jpg', edges_img)
+    edges_img = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    edges_img = cv2.dilate(edges_img, np.ones((3, 3), np.uint8))
+    cv2.imwrite('tmp2.jpg', edges_img)
 
     # находим линии на контуре
     linesP = cv2.HoughLinesP(edges, 1, np.pi / 180, 40, None, 40, 10)
@@ -56,12 +57,21 @@ def process(filename, image_path, mask_path, result_path):
 
     # вычисляем площадь маски
     max_contour = find_max_contour(matrix_contours)
+    length_max_contour = cv2.arcLength(max_contour, True)
     mask_area = cv2.contourArea(max_contour)
     print("Mask area: ", mask_area)
 
+    # рисуем все найденные линии на изображении (для дебага)
+    # original_image_for_lines = cv2.imread(original_path)
+    # for line in linesP:
+    #     x1, y1, x2, y2 = line[0]
+    #     c = np.array([[x1, y1], [x2, y2]])
+    #     cv2.drawContours(original_image_for_lines, [c], -1, (255, 0, 0), 3, cv2.LINE_AA)
+    # cv2.imwrite('tmp3.jpg', original_image_for_lines)
+
     # фильтруем найденные линии
-    limit_line_length = np.sqrt(mask_area) / 10.0
-    permissible_distance = -np.sqrt(mask_area) / 4.0
+    limit_line_length = length_max_contour / 16.0
+    permissible_distance = -length_max_contour / 16.0
     filtered_lines = []
     for i in range(0, len(linesP)):
         x1, y1, x2, y2 = linesP[i][0]
@@ -74,13 +84,13 @@ def process(filename, image_path, mask_path, result_path):
             continue
         filtered_lines.append(linesP[i][0])
 
-    # рисуем найденные линии на изображении (для дебага)
+    # рисуем отфильтрованные найденные линии на изображении (для дебага)
     # original_image_for_lines = cv2.imread(original_path)
     # for line in filtered_lines:
     #     x1, y1, x2, y2 = line
     #     c = np.array([[x1, y1], [x2, y2]])
-    #     cv2.drawContours(original_image_for_lines, [c], -1, (0, 0, 255), 3, cv2.LINE_AA)
-    # cv2.imwrite('tmp3.jpg', original_image_for_lines)
+    #     cv2.drawContours(original_image_for_lines, [c], -1, (255, 0, 0), 3, cv2.LINE_AA)
+    # cv2.imwrite('tmp4.jpg', original_image_for_lines)
 
     # рисуем линии по отдельности (для дебага)
     # for i in range(len(filtered_lines)):
@@ -186,7 +196,7 @@ def process(filename, image_path, mask_path, result_path):
 
     # рисуем наилучший контур
     cv2.drawContours(original_image, [candidates_contours[max_index]], -1, (0, 255, 0), 3)
-    cv2.imwrite(result_path + filename + '.jpg', original_image)
+    cv2.imwrite('tmp5.jpg', original_image)
     np.save(result_path + filename, candidates_contours[max_index])
 
 

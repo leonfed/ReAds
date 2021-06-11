@@ -4,9 +4,11 @@ import cv2
 import numpy as np
 import pandas
 
-
 # получить ground-truth контур для реального изображения
-def get_real_gt_contour(real_gt_path, contour):
+from utils.corners import sort_contour
+
+
+def get_real_gt_contour(real_gt_path, filename, contour):
     tree = ET.parse(real_gt_path + filename + ".xml")
     objects = tree.getroot().findall("object")
     gt_contour = []
@@ -24,11 +26,11 @@ def get_real_gt_contour(real_gt_path, contour):
         # Проверяем пересекается ли этот контур с найденным
         is_intersection = False
         for p in contour:
-            dist = cv2.pointPolygonTest(points, (p[0], p[1]), False)
-            is_intersection = is_intersection or dist >= 0.0
+            dist = cv2.pointPolygonTest(points, (p[0], p[1]), True)
+            is_intersection = is_intersection or dist >= -20.0
         for p in points:
-            dist = cv2.pointPolygonTest(contour, (p[0], p[1]), False)
-            is_intersection = is_intersection or dist >= 0.0
+            dist = cv2.pointPolygonTest(contour, (p[0], p[1]), True)
+            is_intersection = is_intersection or dist >= -20.0
 
         if is_intersection:
             gt_contour = points
@@ -41,7 +43,7 @@ def get_real_gt_contour(real_gt_path, contour):
 
 
 # получить ground-truth контур для синтетического изображения
-def get_synthetic_gt_contour(synthetic_gt_contours):
+def get_synthetic_gt_contour(synthetic_gt_contours, filename):
     if synthetic_gt_contours.__contains__(filename):
         return synthetic_gt_contours[filename]
     else:
@@ -59,12 +61,19 @@ def process(image_name, dir_path, real_gt_path, masks_path, contours_files, synt
     mask = np.load(masks_path + filename + '.npy')
 
     contour = np.load(dir_path + filename + '.npy')
+    contour = sort_contour(contour)
     contour = np.append(contour, [contour[0]], axis=0)
     contour = np.vectorize(lambda x: int(x))(contour)
 
-    gt_contour = get_synthetic_gt_contour(synthetic_gt_contours) \
+    dist1 = cv2.norm(contour[0], contour[1])
+    dist2 = cv2.norm(contour[1], contour[2])
+
+    # указываем расстояние, определяющую область, где будем считать пиксели
+    permission_dist = max(dist1, dist2) / 10.0
+
+    gt_contour = get_synthetic_gt_contour(synthetic_gt_contours, filename) \
         if filename.startswith('synthetic_') \
-        else get_real_gt_contour(real_gt_path, contour)
+        else get_real_gt_contour(real_gt_path, filename, contour)
 
     if gt_contour is None:
         print("%s\t%s\t%s\t%s\t%s" % (raw_image_name, '-', '-', '-', '-'))
@@ -78,8 +87,13 @@ def process(image_name, dir_path, real_gt_path, masks_path, contours_files, synt
     for i in range(len(mask)):
         for j in range(len(mask[0])):
             point = (j, i)
+
+            gt_dist = cv2.pointPolygonTest(gt_contour, point, True)
+            if permission_dist < abs(gt_dist):
+                continue
+
             is_in_contour = cv2.pointPolygonTest(contour, point, False) >= 0.0
-            is_in_gt = cv2.pointPolygonTest(gt_contour, point, False) >= 0.0
+            is_in_gt = gt_dist >= 0.0
             if is_in_contour and is_in_gt:
                 tp += 1
             elif is_in_contour and not is_in_gt:
@@ -101,7 +115,7 @@ if __name__ == "__main__":
     synthetic_gt_path = '../test_data/input/synthetic_ground_truth.csv'
 
     # путь до ground-truth контуров реальных изображений
-    real_gt_path = '/home/fedleonid/Study/diploma/annotations_photos/'
+    real_gt_path = 'annotations_photos/'
 
     # путь до ground-truth контуров реальных изображений
     images_path = '../test_data/input/'
@@ -121,7 +135,7 @@ if __name__ == "__main__":
     synthetic_gt_contours = {}
     for d in synthetic_gt_data:
         filename, x1, y1, x2, y2, x3, y3, x4, y4 = d
-        c = np.array([[x1, y1], [x2, y2], [x4, y4], [x4, y4]])
+        c = np.array([[x1, y1], [x2, y2], [x3, y3], [x4, y4]])
         synthetic_gt_contours[filename] = c
 
     for raw_image_name in all_images:

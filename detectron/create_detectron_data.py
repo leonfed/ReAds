@@ -41,7 +41,7 @@ if __name__ == "__main__":
     print("Synthetic - OK")
 
     # прочитать реальные фото
-    annotations_files = os.listdir('/home/fedleonid/Study/diploma/annotations_photos')
+    annotations_files = os.listdir('annotations_photos')
     random.shuffle(annotations_files)
 
     # указать те, которые точно нужно поместить в тестовый датасет
@@ -56,10 +56,10 @@ if __name__ == "__main__":
 
     for file in test_real_data:
         filename = file.split('.')[0]
-        shutil.copy('/home/fedleonid/Study/diploma/photos/%s.jpg' % filename, 'detectron_test_data/%s.jpg' % filename)
+        shutil.copy('photos/%s.jpg' % filename, 'detectron_test_data/%s.jpg' % filename)
 
     for file in train_real_data:
         filename = file.split('.')[0]
-        shutil.copy('/home/fedleonid/Study/diploma/photos/%s.jpg' % filename, 'detectron_train_data/%s.jpg' % filename)
+        shutil.copy('photos/%s.jpg' % filename, 'detectron_train_data/%s.jpg' % filename)
 
     print("Real - OK")

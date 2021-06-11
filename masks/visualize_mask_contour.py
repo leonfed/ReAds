@@ -17,7 +17,7 @@ if __name__ == "__main__":
     images_path = '../video/data/input/'
 
     # путь куда нужно поместить изображения с контурами
-    masks_contours_path = '../video/data/masks_raw_contours/'
+    masks_contours_path = '../video/data/visualized_masks/'
 
     masks_files = os.listdir(masks_path)
     print(masks_files)

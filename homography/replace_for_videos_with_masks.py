@@ -6,8 +6,9 @@ import numpy as np
 
 from utils.corners import sort_contour
 
+
 # заменить баннер на одном кадре
-def process(filename, image_path, input_path, contours_path, result_path):
+def process(filename, image_path, input_path, contours_path, result_path, masks_path):
     print(filename)
 
     img_banner = cv2.imread(image_path)
@@ -27,10 +28,18 @@ def process(filename, image_path, input_path, contours_path, result_path):
     # Проецируем баннер
     img_out = cv2.warpPerspective(img_banner, h, (img_dst.shape[1], img_dst.shape[0]))
 
-    # Удалить баннер, который надо заменить
-    mask = np.ones(img_dst.shape[:2], dtype="uint8") * 255
-    cv2.drawContours(mask, [corners_dst], -1, 0, -1)
-    img_dst = cv2.bitwise_and(img_dst, img_dst, mask=mask)
+    # Удалить баннер, который надо заменить, но оставить человека перед баннером
+    mask = cv2.imread(masks_path + filename + ".png", cv2.IMREAD_GRAYSCALE)
+
+    for i in range(len(mask)):
+        for j in range(len(mask[0])):
+            dist = cv2.pointPolygonTest(contour, (j, i), True)
+            if dist >= -1.0:
+                if mask[i][j] <= 200:
+                    img_dst[i][j] = np.array([0, 0, 0])
+                else:
+                    img_out[i][j] = np.array([0, 0, 0])
+
 
     # Смержить изображения
     img_res = cv2.addWeighted(img_dst, 1, img_out, 1, 0.0)
@@ -40,19 +49,22 @@ def process(filename, image_path, input_path, contours_path, result_path):
 # Замена баннера на кадрах видео
 if __name__ == "__main__":
     # путь до баннера, который нужно вставить
-    image_path = '../video/data/banner.jpg'
+    image_path = '../video/data/banner_v2.jpg'
 
     # путь до контуров
-    contours_path = '../video/data/voodoo_contours/'
+    contours_path = '../video/data/contours/'
 
     # путь до кадров
     input_path = '../video/data/input/'
 
+    # путь до карты глубины
+    masks_path = '../video/data/people_masks/'
+
     # путь до директории, куда нужно поместить кадры с замененным баннером
     result_path = '../video/data/processed_images/'
 
-    files = os.listdir(contours_path)
-    files = list(map(lambda x: x.split('.')[0], files))
+    files_size = len(os.listdir(contours_path))
 
-    for filename in files:
-        process(filename, image_path, input_path, contours_path, result_path)
+    for t in range(files_size):
+        filename = str(t)
+        process(filename, image_path, input_path, contours_path, result_path, masks_path)

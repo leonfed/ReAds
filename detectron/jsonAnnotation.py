@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # обрабатываем реальные фото
     for file in real_files:
         filename = file.split('.')[0]
-        tree = ET.parse('/home/fedleonid/Study/diploma/annotations_photos/' + filename + ".xml")
+        tree = ET.parse('annotations_photos/' + filename + ".xml")
 
         objects = tree.getroot().findall("object")
 

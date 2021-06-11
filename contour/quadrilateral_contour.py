@@ -16,34 +16,33 @@ class QContour():
         self.normal_data = torch.tensor(np.dot(centerlize, self.pc) / self.pc_std, dtype=torch.float32)
 
         self.region_bound = torch.nn.Linear(2, 4, bias=True)
-        self.region_bound.weight.data = torch.tensor([[0.3, 0.], [0., 0.3], [-0.3, 0.], [0., -0.3]])
+        self.region_bound.weight.data = torch.tensor([[1., 0.], [0., 1.], [-1., 0.], [0., -1.]])
         self.region_bound.bias.data = torch.ones(4)
 
         self.totally_score = torch.nn.Linear(4, 1, bias=True)
         self.totally_score.weight.data = torch.ones(1, 4)
         self.totally_score.bias.data = torch.tensor([-2.])
 
-    def forward(self, x):
-        x = torch.sigmoid(self.region_bound(x))
-        x = torch.sigmoid(self.totally_score(x))
-        return x
+    def compute(self):
+        def forward(x0):
+            x1 = torch.sigmoid(self.region_bound(x0))
+            x2 = torch.sigmoid(self.totally_score(x1))
+            return x2
 
-    def fit(self, epoch, lr=1e-2, betas=(0.9, 0.999), weight_decay=0):
-        self.optimizer = torch.optim.Adam([self.region_bound.weight, self.region_bound.bias,
-                                           self.totally_score.bias],
-                                          lr=lr, betas=betas, weight_decay=weight_decay)
+        params = [self.region_bound.weight, self.region_bound.bias, self.totally_score.bias]
+        self.optimizer = torch.optim.Adam(params, lr=1e-2, betas=(0.9, 0.999), weight_decay=0)
         self.criterion = torch.nn.MSELoss()
-        for e in range(epoch):
+        for e in range(1000):
             self.optimizer.zero_grad()
             datums = len(self.normal_data)
             extend_input = torch.cat((self.normal_data, 8 * torch.rand((int(0.2 * datums), 2)) - 4), 0)
             extend_label = torch.ones(int(1.2 * datums), 1)
             extend_label[datums:] *= 0
-            loss = self.criterion(self.forward(extend_input), extend_label)
+            loss = self.criterion(forward(extend_input), extend_label)
             loss.backward()
             self.optimizer.step()
 
-    def get_vertice(self):
+    def get_vertexes(self):
         output = torch.zeros(4, 2)
         for i in range(-4, 0):
             raw_b = self.region_bound.bias.data[[i, i + 1]]
@@ -73,9 +72,8 @@ def process_file(filename, mask_path, result_path):
     sample = np.array(arr)
 
     foo = QContour(sample)
-    foo.fit(1000, lr=0.1, betas=(0., 0.999), weight_decay=0.0)
-    foo.criterion(foo.forward(torch.rand(4, 2)), torch.ones(4, 1))
-    fooo = foo.get_vertice()
+    foo.compute()
+    fooo = foo.get_vertexes()
     result.append(fooo)
     plt.figure(figsize=(8, 8))
     plt.plot(sample[:, 0], sample[:, 1], "bp")

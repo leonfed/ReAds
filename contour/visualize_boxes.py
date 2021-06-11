@@ -1,5 +1,3 @@
-import shutil
-
 import cv2
 import numpy as np
 import os
@@ -20,9 +18,9 @@ def process(filename, contour_path, image_path, result_path):
 
 # Рисует контуры
 if __name__ == "__main__":
-    contour_path = '../video/data_4/voodoo_contours/'
-    image_path = '../video/data_4/input/'
-    result_path = '../video/data_4/voodoo_contours_images/'
+    contour_path = '../video/data/contours/'
+    image_path = '../video/data/input/'
+    result_path = '../video/data/contours_images/'
 
     files = os.listdir(contour_path)
     contours_files = list(map(lambda x: x.split('.')[0], files))

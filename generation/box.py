@@ -106,7 +106,7 @@ def process_screenshot(data, raw_screenshots_path, result_path):
 if __name__ == "__main__":
     byte_io = BytesIO()
 
-    file_screenshots_csv = open('screenshots.csv', 'a')
+    file_screenshots_csv = open('screenshot.csv', 'a')
 
     ply_data = pandas.read_csv('rawScreenshots.csv').values
 

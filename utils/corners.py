@@ -9,10 +9,10 @@ def sort_contour(contour):
     min_diff = 10000
     x2, y2 = 0, 0
 
-    max_sum = 0
+    max_sum = -10000
     x3, y3 = 0, 0
 
-    max_diff = 0.0
+    max_diff = -10000
     x4, y4 = 0, 0
 
     for [x, y] in contour:

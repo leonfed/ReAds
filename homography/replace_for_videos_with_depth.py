@@ -65,19 +65,19 @@ def get_max_depth(contour, depth_map):
 # Замена баннера на кадрах видео
 if __name__ == "__main__":
     # путь до баннера, который нужно вставить
-    image_path = '../video/data_4/banner.jpg'
+    image_path = '../video/data/banner.jpg'
 
     # путь до контуров
-    contours_path = '../video/data_4/voodoo_contours/'
+    contours_path = '../video/data/voodoo_contours/'
 
     # путь до кадров
-    input_path = '../video/data_4/input/'
+    input_path = '../video/data/input/'
 
     # путь до карты глубины
-    depth_maps_path = '../video/data_4/depth_maps/'
+    depth_maps_path = '../video/data/depth_maps/'
 
     # путь до директории, куда нужно поместить кадры с замененным баннером
-    result_path = '../video/data_4/processed_images/'
+    result_path = '../video/data/processed_images/'
 
     first_contour = np.load(contours_path + "0.npy")
     first_depth_map = np.load(depth_maps_path + "0.npy")
@@ -86,6 +86,6 @@ if __name__ == "__main__":
 
     files_size = len(os.listdir(contours_path))
 
-    for t in range(files_size):
+    for t in range(75, files_size):
         filename = str(t)
         process(filename, image_path, input_path, contours_path, result_path, depth_maps_path, max_depth)

@@ -164,4 +164,4 @@ if __name__ == "__main__":
     print(masks_files)
 
     for filename in masks_files:
-        process_file(filename, '../video/data/masks/', "../video/data/contours/", result_dir)
+        process_file(filename, '../video/data/masks/', "../video/data/input/", result_dir)

@@ -7,7 +7,7 @@ from plyfile import PlyData
 # Скрипт, который раскрашивает стены. Удобен для дебага
 if __name__ == "__main__":
 
-    plydata = PlyData.read('/home/fedleonid/Study/diploma/replica_v1/apartment_2/habitat/mesh_semantic.ply')
+    plydata = PlyData.read('mesh_semantic.etc.ply')
     print(plydata)
     face = plydata['face']
     vertex = plydata['vertex']
@@ -20,9 +20,7 @@ if __name__ == "__main__":
     # print(vertex.data)
 
     vertex_len = len(vertex.data)
-
     indexes = set()
-
     wall_ids = {76}
 
     for i in range(len(face.data)):
@@ -46,7 +44,5 @@ if __name__ == "__main__":
     # print(vertex.data)
 
     plydata.elements = [vertex, face]
-
     plydata.write('mesh_semantic.ply')
-
     sys.exit()

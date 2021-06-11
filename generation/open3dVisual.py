@@ -6,7 +6,7 @@ import open3d as o3d
 
 # Скрипт для визуализации 3d модели с помощью open3d
 if __name__ == "__main__":
-    ply_file = "mesh_semantic.ply"
+    ply_file = "mesh_semantic.etc.ply"
 
     pcd = o3d.io.read_point_cloud(ply_file)
 

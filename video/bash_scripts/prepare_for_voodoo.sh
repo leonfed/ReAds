@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#подготовить данные полученые из voodoo
+
 file="$1"
 output_dir="$2"
 
