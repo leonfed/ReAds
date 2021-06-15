@@ -50,18 +50,9 @@ def get_points(point_3d, frame_params):
     return x, y
 
 
-# проецирует контур первого контура на другие контуры, опирайся на выход voodoo
-if __name__ == "__main__":
-    first_contour_path = 'data/contours/0.npy'
-    output_contour_path = 'data/contours/'
-    frames_params_path = 'data/voodoo/frames_params.tsv'
-    points_3d_path = 'data/voodoo/3d_points.tsv'
-    frames_size = 225
-
-    first_contour = np.load(first_contour_path)
+def expand_contours(contours_path, frames_params_path, points_3d_path, frames_size):
+    first_contour = np.load(contours_path + "0.npy")
     first_contour = sort_contour(first_contour)
-
-    np.save(output_contour_path + '0', first_contour)
 
     with open(frames_params_path) as f:
         frames_params = f.readlines()
@@ -82,10 +73,6 @@ if __name__ == "__main__":
     first_points = np.array(first_points)
 
     for i in range(1, frames_size):
-        print(i)
-
-        prev_points = first_points
-
         cur_points = []
 
         for j in range(len(selected_points_3d)):
@@ -99,4 +86,13 @@ if __name__ == "__main__":
         cur_contour = cv2.perspectiveTransform(np.array([first_contour], dtype=float), h)
         cur_contour = np.array(cur_contour[0], dtype=int)
 
-        np.save(output_contour_path + str(i), cur_contour)
+        np.save(contours_path + str(i), cur_contour)
+
+
+# проецирует контур первого контура на другие контуры, опирайся на выход voodoo
+if __name__ == "__main__":
+    contours_path = 'data/contours/'
+    frames_params_path = 'data/voodoo/frames_params.tsv'
+    points_3d_path = 'data/voodoo/3d_points.tsv'
+    frames_size = 225
+    expand_contours(contours_path, frames_params_path, points_3d_path, frames_size)

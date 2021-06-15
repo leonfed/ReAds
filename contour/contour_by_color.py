@@ -61,19 +61,16 @@ class DFS:
                         self.points.append((i, j))
 
 
-# Обработка файла
-def process_file(filename, mask_path, image_path, result_path):
-    print(filename)
-    mask = np.load(mask_path + filename + ".npy")
+# Обработка файла. Возвращает False, если рамки не были найдены
+def color_find(image_path, mask_path, result_path):
+    mask = np.load(mask_path)
 
     # читаем оригинальное изображение
-    input_filename = filename + '.png' if filename.startswith('synthetic_') else filename + '.jpg'
-    path = image_path + input_filename
-    image = Image.open(path)
+    image = Image.open(image_path)
     image_width = image.size[0]
     image_height = image.size[1]
     image_pix = image.load()
-    original_image = cv2.imread(path)
+    original_image = cv2.imread(image_path)
 
     # находим контур маски
     black_white_image = np.array([[to_rgb(c) for c in r] for r in mask])
@@ -124,8 +121,8 @@ def process_file(filename, mask_path, image_path, result_path):
     # определяем финальный контур
     black_white_image = np.array([[to_rgb(c) for c in r] for r in result_pixels])
     im = Image.fromarray(np.uint8(black_white_image))
-    im.save('tmp2.jpg')
-    tmp_image = cv2.imread('tmp2.jpg')
+    im.save('tmp.jpg')
+    tmp_image = cv2.imread('tmp.jpg')
     im_bw = cv2.cvtColor(tmp_image, cv2.COLOR_RGB2GRAY)
     blur = cv2.GaussianBlur(im_bw, (5, 5), 0)
     im_bw = cv2.Canny(blur, 10, 90)
@@ -140,15 +137,18 @@ def process_file(filename, mask_path, image_path, result_path):
     for_save = np.array([t[0] for t in approx])
     print(for_save)
 
-    if len(for_save) < 4:
+    if len(for_save) != 4:
         print("Skip image because contour is not found")
+        return False
     else:
         # сохраняем результат обработки
-        cv2.drawContours(original_image, [approx], -1, (0, 255, 0), 3)
-        cv2.imwrite(result_path + filename + '.jpg', original_image)
-        np.save(result_path + filename, for_save)
+        np.save(result_path, for_save)
 
-    print('\n')
+        # сохраняем в виде изображения (для дебага)
+        # cv2.drawContours(original_image, [approx], -1, (0, 255, 0), 3)
+        # cv2.imwrite('tmp_color.jpg', original_image)
+
+        return True
 
 
 # Определяет рамки баннеров, основываясь на похожести цветов
@@ -157,6 +157,8 @@ if __name__ == "__main__":
     mask_path_dir = '../video/data/masks'
     # Путь до директории, куда нужно поместить результаты обработки
     result_dir = '../video/data/contours'
+    # Путь до директории, где находятся оригинальный изображения
+    input_dir = '../video/data/contours'
 
     # Обрабатывает все изображения в директории
     files = os.listdir(mask_path_dir)
@@ -164,4 +166,4 @@ if __name__ == "__main__":
     print(masks_files)
 
     for filename in masks_files:
-        process_file(filename, '../video/data/masks/', "../video/data/input/", result_dir)
+        color_find(input_dir + filename + '.jpg', mask_path_dir + filename + ".npy", result_dir + filename)

@@ -3,14 +3,10 @@ import numpy as np
 
 
 # выбрать маску для одного файла
-def process(filename, masks_path, result_path):
+def choose(masks_path, scores_path, result_path):
     print(filename)
-    masks = np.load(masks_path + filename + '.npy')
-    scores = np.load(masks_path + 'scores_' + filename + '.npy')
-
-    if len(masks) < 1:
-        print("Skip " + filename + " because masks is empty")
-        return
+    masks = np.load(masks_path)
+    scores = np.load(scores_path)
 
     # убрать накладывающиеся
     new_masks = [masks[0]]
@@ -56,22 +52,24 @@ def process(filename, masks_path, result_path):
 
     if best_mask_score < 0.85:
         print("Skip because score is " + str(best_mask_score))
+        return False
     else:
-        np.save(result_path + filename, np.array(masks[best_mask_index]))
+        np.save(result_path, np.array(masks[best_mask_index]))
+        return True
 
 
 # Выбрать по одной маске на изображениях
 if __name__ == "__main__":
 
-    masks_path = '../video/data/mask_rcnn_output/'
+    input_path = '../video/data/mask_rcnn_output/'
 
     # путь, куда записать результат
     result_path = '../video/data/masks/'
 
     all_files = os.listdir('../video/data/mask_rcnn_output')
     filtered = filter(lambda x: x.endswith('npy') and not x.startswith('scores'), all_files)
-    masks_files = list(map(lambda x: x.split('.')[0], filtered))
-    print(masks_files)
+    files = list(map(lambda x: x.split('.')[0], filtered))
+    print(files)
 
-    for filename in masks_files:
-        process(filename, masks_path, result_path)
+    for filename in files:
+        choose(input_path + filename + '.npy', input_path + 'scores_' + filename + '.npy', result_path + filename)

@@ -57,10 +57,10 @@ class QContour():
         return output
 
 
-# Вписывание может быть неудачно. В этом случае process_file возвратит False в ответе
-def process_file(filename, mask_path, result_path):
+# Вписывание может быть неудачно. В этом случае quad_find возвратит False в ответе
+def quad_find(mask_path, result_path):
     print(filename)
-    mask = np.load(mask_path + filename)
+    mask = np.load(mask_path)
     result = []
 
     arr = []
@@ -99,7 +99,7 @@ def process_file(filename, mask_path, result_path):
 
     print('All mask count: ' + str(all_mask_count) + "  In counter: " + str(in_counter_count))
 
-    np.save(result_path + filename, contour)
+    np.save(result_path, contour)
 
     return all_mask_count > in_counter_count * 0.9
 
@@ -115,7 +115,4 @@ if __name__ == "__main__":
     print(filenames)
 
     for filename in filenames:
-        # пробуем вписать несколько раз
-        for i in range(3):
-            if process_file(filename, mask_path, result_path):
-                break
+        quad_find(mask_path + filename, result_path + filename)

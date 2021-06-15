@@ -1,41 +1,6 @@
 import os
-import shutil
 
-import cv2
-import numpy as np
-
-from utils.corners import sort_contour
-
-# заменить баннер на одном кадре
-def process(filename, image_path, input_path, contours_path, result_path):
-    print(filename)
-
-    img_banner = cv2.imread(image_path)
-    corners_banner = np.array(
-        [[0, 0], [0, img_banner.shape[0]], [img_banner.shape[1], img_banner.shape[0]], [img_banner.shape[1], 0]])
-
-    # Читаем кадр видео
-    img_dst = cv2.imread(input_path + filename + '.jpg')
-
-    # Читаем и сортируем углы баннера на кадре
-    contour = np.load(contours_path + filename + '.npy')
-    corners_dst = sort_contour(contour)
-
-    # Вычисляем гомография
-    h, status = cv2.findHomography(corners_banner, corners_dst)
-
-    # Проецируем баннер
-    img_out = cv2.warpPerspective(img_banner, h, (img_dst.shape[1], img_dst.shape[0]))
-
-    # Удалить баннер, который надо заменить
-    mask = np.ones(img_dst.shape[:2], dtype="uint8") * 255
-    cv2.drawContours(mask, [corners_dst], -1, 0, -1)
-    img_dst = cv2.bitwise_and(img_dst, img_dst, mask=mask)
-
-    # Смержить изображения
-    img_res = cv2.addWeighted(img_dst, 1, img_out, 1, 0.0)
-    cv2.imwrite(result_path + filename + '.jpg', img_res)
-
+from homography.replace import replace_banner
 
 # Замена баннера на кадрах видео
 if __name__ == "__main__":
@@ -55,4 +20,7 @@ if __name__ == "__main__":
     files = list(map(lambda x: x.split('.')[0], files))
 
     for filename in files:
-        process(filename, image_path, input_path, contours_path, result_path)
+        replace_banner(image_path,
+                       input_path + filename + '.jpg',
+                       contours_path + filename + '.npy',
+                       result_path + filename + '.jpg')

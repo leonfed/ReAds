@@ -11,14 +11,7 @@ canny_threshold1 = 90
 canny_threshold2 = 150
 
 
-def process(filename, image_path, mask_path, result_path):
-    print(filename)
-
-    # читаем оригинальное изображение
-    input_filename = filename + '.png' if filename.startswith('synthetic_') else filename + '.jpg'
-    original_path = image_path + input_filename
-    original_image = cv2.imread(original_path)
-
+def edge_find(original_path, mask_path, result_path):
     # читаем как черно-белое
     img = cv2.imread(original_path, cv2.IMREAD_GRAYSCALE)
     # преобразование для сглаживания
@@ -30,18 +23,13 @@ def process(filename, image_path, mask_path, result_path):
     # находим грани
     edges = cv2.Canny(img, canny_threshold1, canny_threshold2, None, 3)
 
-    # записываем изображение контуров (для дебага)
-    edges_img = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
-    edges_img = cv2.dilate(edges_img, np.ones((3, 3), np.uint8))
-    cv2.imwrite('tmp2.jpg', edges_img)
-
     # находим линии на контуре
     linesP = cv2.HoughLinesP(edges, 1, np.pi / 180, 40, None, 40, 10)
 
     # ищем контуры
     contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
 
-    mask = np.load(mask_path + filename + '.npy')
+    mask = np.load(mask_path)
 
     # сохраняем область маски в tmp.jpg
     black_white_image = np.array([[to_rgb(c) for c in r] for r in mask])
@@ -54,6 +42,11 @@ def process(filename, image_path, mask_path, result_path):
     blur = cv2.GaussianBlur(im_bw, (5, 5), 0)
     im_bw = cv2.Canny(blur, 10, 90)
     matrix_contours, _ = cv2.findContours(im_bw, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    # записываем изображение контуров (для дебага)
+    # edges_img = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    # edges_img = cv2.dilate(edges_img, np.ones((3, 3), np.uint8))
+    # cv2.imwrite('tmp2.jpg', edges_img)
 
     # вычисляем площадь маски
     max_contour = find_max_contour(matrix_contours)
@@ -148,7 +141,7 @@ def process(filename, image_path, mask_path, result_path):
     # for c in candidates_contours:
     #     cv2.drawContours(original_image_for_candidates, [c], -1, (randint(0, 255), randint(0, 255), randint(0, 255)), 3,
     #                      cv2.LINE_AA)
-    # cv2.imwrite('tmp4.jpg', original_image_for_candidates)
+    # cv2.imwrite('tmp5.jpg', original_image_for_candidates)
 
     # выведем контуры в разные изображения (для дебага)
     # for i in range(len(candidates_contours)):
@@ -169,7 +162,6 @@ def process(filename, image_path, mask_path, result_path):
     # считаем score пересечения контура и маски
     best_possible_score = 0
     for i in range(min_1, max_1 + 1):
-        # print("First index: %s" % str(i))
         for j in range(min_0, max_0 + 1):
             if mask[i][j]:
                 best_possible_score += 1
@@ -194,10 +186,11 @@ def process(filename, image_path, mask_path, result_path):
 
     print("Max index: ", max_index)
 
-    # рисуем наилучший контур
-    cv2.drawContours(original_image, [candidates_contours[max_index]], -1, (0, 255, 0), 3)
-    cv2.imwrite('tmp5.jpg', original_image)
-    np.save(result_path + filename, candidates_contours[max_index])
+    # рисуем наилучший контур (для дебага)
+    # cv2.drawContours(original_image, [candidates_contours[max_index]], -1, (0, 255, 0), 3)
+    # cv2.imwrite('tmp6.jpg', original_image)
+
+    np.save(result_path, candidates_contours[max_index])
 
 
 # Определяет рамки баннеров, основываясь на нахождение контуров
@@ -212,4 +205,5 @@ if __name__ == "__main__":
     print(masks_files)
 
     for filename in masks_files:
-        process(filename, image_path, mask_path, result_path)
+        original_path = image_path + filename + '.jpg'
+        edge_find(original_path, mask_path + + filename + '.npy', result_path + filename)

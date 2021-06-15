@@ -15,13 +15,9 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog
 
-# Используем обученную модель
-if __name__ == "__main__":
-    setup_logger()
 
-    model_path = "detectron_model.pth"
-    test_data_path = "detectron_test_data/"
-    result_path = "test_output/"
+def detect(detectron_path, image_path, output_masks_path, output_scores_path, output_image_path=None):
+    setup_logger()
 
     # Настраиваем
     cfg = get_cfg()
@@ -35,22 +31,29 @@ if __name__ == "__main__":
     cfg.SOLVER.MAX_ITER = 1300
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
-    cfg.MODEL.WEIGHTS = model_path
+    cfg.MODEL.WEIGHTS = detectron_path
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
     predictor = DefaultPredictor(cfg)
 
-    files = os.listdir(test_data_path)
-    files = list(filter(lambda x: not x.endswith('csv'), files))
-    print(files)
+    im = cv2.imread(image_path)
+    outputs = predictor(im)
+    v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
 
-    for file in files:
-        print(file)
-        im = cv2.imread(test_data_path + file)
-        outputs = predictor(im)
-        v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+    if output_image_path is not None:
         out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-        out.save(result_path + file)
-        masks = outputs["instances"].to("cpu").pred_masks
-        np.save(result_path + file.split('.')[0], masks.numpy())
-        scores = outputs["instances"].to("cpu").scores
-        np.save(result_path + "scores_" + file.split('.')[0], scores.numpy())
+        out.save(output_image_path)
+
+    masks = outputs["instances"].to("cpu").pred_masks
+    np.save(output_masks_path, masks.numpy())
+    scores = outputs["instances"].to("cpu").scores
+    np.save(output_scores_path, scores.numpy())
+
+
+# Используем обученную модель
+if __name__ == "__main__":
+    detectron_path = "detectron_model.pth"
+    image_path = "image.jpg"
+    output_masks_path = "masks.npy"
+    output_scores_path = "scores.npy"
+    output_image_path = "output.jpg"
+    detect(detectron_path, image_path, output_masks_path, output_scores_path, output_image_path)
