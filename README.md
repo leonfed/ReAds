@@ -3,11 +3,11 @@ ReAds
 
 ### Model
 
-You can download the trained model for detection adverts by [link](https://drive.google.com/file/d/1Z6y3wkcviD2MvIGvwqQ1xhHRJNY598Ah/view?usp=sharing).
+You can download the trained model for advertisement detection by [link](https://drive.google.com/file/d/1Z6y3wkcviD2MvIGvwqQ1xhHRJNY598Ah/view?usp=sharing).
 
 ### Demo
 
-**Run algorithm (advert detection and replacement) on image**
+**Run algorithm (advertisement detection and replacement) on image**
 ``` bash
 python demo_image.py -i input_image.jpg -o output_image.jpg -d detectron_model.pth -b banner.jpg
 ```
