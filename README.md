@@ -8,7 +8,6 @@ You can download the trained model for detection adverts by [link](https://drive
 ### Demo
 
 **Run algorithm (advert detection and replacement) on image**
-**Для запуска обработки баннера (его детекция и замена) можно выполнить команду**
 ``` bash
 python demo_image.py -i input_image.jpg -o output_image.jpg -d detectron_model.pth -b banner.jpg
 ```
